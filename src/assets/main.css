@@ -8,122 +8,179 @@
 
 html,
 body {
-  font-family: Overpass, sans-serif;
+  font-family: Inter, 'Noto Sans', 'Segoe UI', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
-
-/* src/assets/colors.css */
+/* ============================================================
+   Ice / Russian-inspired palette
+   The `--p-*` names are kept from the template so existing
+   components continue to work, but they now hold icy blues.
+   ============================================================ */
 
 :root {
-  /* ===== Purple Family ===== */
-  --p-50: #F5F3FF;
-  --p-100: #EDE9FE;
-  --p-200: #DDD6FE;
-  --p-300: #C4B5FD;
-  --p-400: #A78BFA;
-  --p-500: #8B5CF6;
-  --p-600: #7C3AED;
-  --p-700: #6D28D9;
-  --p-800: #5B21B6;
-  --p-900: #4C1D95;
-  
-  /* ===== Green Family ===== */
-  --g-50: #ECFDF5;
-  --g-100: #D1FAE5;
-  --g-200: #A7F3D0;
-  --g-300: #6EE7B7;
-  --g-400: #34D399;
-  --g-500: #10B981;
-  --g-600: #059669;
-  --g-700: #047857;
-  --g-800: #065F46;
-  --g-900: #064E3B;
-  
+  /* ===== Ice Blue Family ===== */
+  --p-50: #f2f9ff;
+  --p-100: #e3f2ff;
+  --p-200: #c9e7ff;
+  --p-300: #a5d7ff;
+  --p-400: #6fc2ff;
+  --p-500: #37a3ee;
+  --p-600: #1d84ce;
+  --p-700: #1567a5;
+  --p-800: #0f4f80;
+  --p-900: #0a3a5f;
+
+  /* ===== Frost / Teal Family (secondary) ===== */
+  --g-50: #ecfeff;
+  --g-100: #cffafe;
+  --g-200: #a5f3fc;
+  --g-300: #67e8f9;
+  --g-400: #22d3ee;
+  --g-500: #06b6d4;
+  --g-600: #0891b2;
+  --g-700: #0e7490;
+  --g-800: #155e75;
+  --g-900: #164e63;
+
   /* ===== Red Family ===== */
-  --r-50: #FEF2F2;
-  --r-100: #FEE2E2;
-  --r-200: #FECACA;
-  --r-300: #FCA5A5;
-  --r-400: #F87171;
-  --r-500: #EF4444;
-  --r-600: #DC2626;
-  --r-700: #B91C1C;
-  --r-800: #991B1B;
-  --r-900: #7F1D1D;
-  
-  /* ===== Gray Family ===== */
-  --gray-50: #F9FAFB;
-  --gray-100: #F3F4F6;
-  --gray-200: #E5E7EB;
-  --gray-300: #D1D5DB;
-  --gray-400: #9CA3AF;
-  --gray-500: #6B7280;
-  --gray-600: #4B5563;
-  --gray-700: #374151;
-  --gray-800: #1F2937;
-  --gray-900: #111827;
-  
+  --r-50: #fef2f2;
+  --r-100: #fee2e2;
+  --r-200: #fecaca;
+  --r-300: #fca5a5;
+  --r-400: #f87171;
+  --r-500: #ef4444;
+  --r-600: #dc2626;
+  --r-700: #b91c1c;
+  --r-800: #991b1b;
+  --r-900: #7f1d1d;
+
+  /* ===== Cool Gray Family ===== */
+  --gray-50: #f8fafc;
+  --gray-100: #f1f5f9;
+  --gray-200: #e2e8f0;
+  --gray-300: #cbd5e1;
+  --gray-400: #94a3b8;
+  --gray-500: #64748b;
+  --gray-600: #475569;
+  --gray-700: #334155;
+  --gray-800: #1e293b;
+  --gray-900: #0f172a;
+
   /* ===== White ===== */
-  --white: #FFFFFF;
-  
-  /* ===== Semantic Colors (Short & Clear) ===== */
+  --white: #ffffff;
+
+  /* ===== Semantic Colors ===== */
   --primary: var(--p-500);
   --primary-dark: var(--p-600);
   --primary-darker: var(--p-700);
   --primary-light: var(--p-400);
   --primary-lighter: var(--p-300);
   --primary-bg: var(--p-50);
-  
+
   --secondary: var(--g-500);
   --secondary-dark: var(--g-700);
   --secondary-darker: var(--g-800);
   --secondary-light: var(--g-400);
   --secondary-lighter: var(--g-300);
   --secondary-bg: var(--g-50);
-  
+
   --danger: var(--r-500);
   --danger-dark: var(--r-600);
   --danger-darker: var(--r-700);
   --danger-bg: var(--r-100);
-  
+
   /* ===== Text Colors ===== */
-  --text: #1a1a1a;
-  --text-secondary: #4A1942;
-  --text-muted: #6B21A5;
+  --text: #0b2540;
+  --text-secondary: #274b63;
+  --text-muted: #3f6f92;
   --text-light: var(--gray-500);
   --text-white: var(--white);
-  
+
   /* ===== Backgrounds ===== */
   --bg-main: var(--p-50);
-  --bg-card: rgba(255, 255, 255, 0.75);
-  --bg-input: rgba(255, 255, 255, 0.8);
+  --bg-card: rgba(255, 255, 255, 0.68);
+  --bg-input: rgba(255, 255, 255, 0.72);
   --bg-white: var(--white);
-  
+
+  /* ===== Liquid-glass tokens ===== */
+  --glass-bg: rgba(255, 255, 255, 0.64);
+  --glass-bg-strong: rgba(255, 255, 255, 0.82);
+  --glass-border: rgba(255, 255, 255, 0.72);
+  --glass-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.85);
+  --glass-blur: blur(22px) saturate(165%);
+  --glass-shadow: 0 16px 44px rgba(37, 137, 201, 0.1);
+
   /* ===== Gradients ===== */
-  --gradient-main: linear-gradient(135deg, var(--p-50) 0%, var(--p-100) 25%, #FCE7F3 60%, var(--g-50) 100%);
-  --gradient-logo: linear-gradient(135deg, var(--p-600) 0%, var(--p-500) 50%, var(--p-400) 100%);
+  --gradient-main: linear-gradient(
+    155deg,
+    #f7fcff 0%,
+    #eaf7ff 35%,
+    #ddefff 65%,
+    #f5fbff 100%
+  );
+  --gradient-logo: linear-gradient(135deg, #0f4f80 0%, #2c9be6 55%, #7dd3fc 100%);
   --gradient-btn: linear-gradient(135deg, var(--p-500) 0%, var(--p-600) 100%);
   --gradient-danger: linear-gradient(135deg, var(--r-500) 0%, var(--r-600) 100%);
-  
+
   /* ===== Shadows ===== */
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-  --shadow-primary: 0 4px 20px rgba(139, 92, 246, 0.06);
-  --shadow-primary-hover: 0 4px 24px rgba(139, 92, 246, 0.1);
+  --shadow-sm: 0 1px 2px 0 rgba(15, 79, 131, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(15, 79, 131, 0.09);
+  --shadow-lg: 0 18px 50px rgba(15, 79, 131, 0.14);
+  --shadow-primary: 0 8px 26px rgba(55, 163, 238, 0.08);
+  --shadow-primary-hover: 0 14px 36px rgba(55, 163, 238, 0.14);
   --shadow-danger: 0 4px 16px rgba(239, 68, 68, 0.3);
-  
+
   /* ===== Borders ===== */
-  --border-primary-light: 1px solid rgba(139, 92, 246, 0.08);
-  --border-primary: 1px solid rgba(139, 92, 246, 0.15);
-  --border-primary-strong: 2px solid rgba(139, 92, 246, 0.15);
-  --border-secondary: 1px solid rgba(16, 185, 129, 0.08);
-  --border-secondary-strong: 1px solid rgba(16, 185, 129, 0.2);
-  
+  --border-primary-light: 1px solid rgba(55, 163, 238, 0.1);
+  --border-primary: 1px solid rgba(55, 163, 238, 0.18);
+  --border-primary-strong: 2px solid rgba(55, 163, 238, 0.18);
+  --border-secondary: 1px solid rgba(6, 182, 212, 0.1);
+  --border-secondary-strong: 1px solid rgba(6, 182, 212, 0.24);
+
   /* ===== Border Radius ===== */
-  --radius-sm: 8px;
-  --radius-md: 12px;
-  --radius-lg: 16px;
-  --radius-xl: 20px;
-  --radius-2xl: 24px;
+  --radius-sm: 9px;
+  --radius-md: 13px;
+  --radius-lg: 18px;
+  --radius-xl: 22px;
+  --radius-2xl: 26px;
+}
+
+::selection {
+  background: rgba(125, 211, 252, 0.5);
+  color: #083a5f;
+}
+
+/* Thin icy scrollbars */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(55, 163, 238, 0.32) transparent;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(55, 163, 238, 0.28);
+  border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(55, 163, 238, 0.45);
+}
+
+/* Frosted glass helper — available to any component that wants it */
+.glass-surface {
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow), var(--glass-highlight);
 }

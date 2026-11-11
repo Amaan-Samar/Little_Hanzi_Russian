@@ -13,13 +13,13 @@ export default {
   props: {
     isLoading: {
       type: Boolean,
-      default: false
+      default: false,
     },
     text: {
       type: String,
-      default: 'Processing...'
-    }
-  }
+      default: 'Processing...',
+    },
+  },
 }
 </script>
 
@@ -30,8 +30,9 @@ export default {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(255, 255, 255, 0.7);
-  backdrop-filter: blur(20px);
+  background: rgba(240, 249, 255, 0.62);
+  backdrop-filter: blur(20px) saturate(160%);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -40,30 +41,41 @@ export default {
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
-.loading-content {
+.loading-container {
   text-align: center;
+  padding: 26px 34px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  box-shadow: 0 24px 60px rgba(15, 79, 131, 0.14);
 }
 
-.spinner {
-  width: 48px;
-  height: 48px;
+.loading-spinner {
+  width: 46px;
+  height: 46px;
   border: 4px solid var(--p-200);
   border-top-color: var(--primary);
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
-  margin: 0 auto 16px;
+  margin: 0 auto 14px;
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .loading-text {
-  font-size: 16px;
+  font-size: 15px;
   color: var(--primary-dark);
   font-weight: 500;
   margin: 0;

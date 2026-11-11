@@ -1,37 +1,51 @@
 // composables/useSettings.js
 import { ref, watch } from 'vue'
 
-const STORAGE_KEY = 'littleKorean_settings'
+const STORAGE_KEY = 'littleRussian_settings'
+const LEGACY_KEYS = ['littleKorean_settings', 'littleChinese_settings']
 
-export function useSettings() {
-  // Load saved settings or use defaults
-  const loadSettings = () => {
+const RUSSIAN_FONTS = ['Inter', 'NotoSans', 'PTSerif', 'NotoSerif', 'Roboto', 'Poppins', 'Georgia']
+
+function readSavedSettings() {
+  const keys = [STORAGE_KEY, ...LEGACY_KEYS]
+  for (const key of keys) {
     try {
-      const saved = localStorage.getItem(STORAGE_KEY)
-      if (saved) {
-        const parsed = JSON.parse(saved)
-        
-        // Migrate from old Chinese settings if needed
-        const migrated = {
-          fontSize: parsed.fontSize ?? 18,
-          selectedFont: parsed.selectedFont ?? 'NotoSansSC',
-          showRomanization: parsed.showRomanization ?? parsed.showPinyin ?? true,
-          showKorean: parsed.showKorean ?? parsed.showChinese ?? true,
-          showEnglish: parsed.showEnglish ?? true,
-          displayOrder: parsed.displayOrder === 'en-cn' ? 'en-kr' : 
-                       parsed.displayOrder === 'cn-en' ? 'kr-en' : 
-                       parsed.displayOrder ?? 'kr-en',
-          interleaveLines: parsed.interleaveLines ?? false,
-          romanizationFontSize: parsed.romanizationFontSize ?? 10,
-          englishFontSize: parsed.englishFontSize ?? 14
-        }
-        
-        return migrated
-      }
+      const saved = localStorage.getItem(key)
+      if (saved) return JSON.parse(saved)
     } catch (error) {
       console.error('Failed to load settings:', error)
     }
-    return null
+  }
+  return null
+}
+
+export function useSettings() {
+  const loadSettings = () => {
+    const parsed = readSavedSettings()
+    if (!parsed) return null
+
+    const displayOrder =
+      parsed.displayOrder === 'en-kr' ||
+      parsed.displayOrder === 'en-cn' ||
+      parsed.displayOrder === 'en-ru'
+        ? 'en-ru'
+        : parsed.displayOrder === 'kr-en' ||
+            parsed.displayOrder === 'cn-en' ||
+            parsed.displayOrder === 'ru-en'
+          ? 'ru-en'
+          : 'ru-en'
+
+    return {
+      fontSize: parsed.fontSize ?? 18,
+      selectedFont: RUSSIAN_FONTS.includes(parsed.selectedFont) ? parsed.selectedFont : 'Inter',
+      showRomanization: parsed.showRomanization ?? parsed.showPinyin ?? true,
+      showRussian: parsed.showRussian ?? parsed.showKorean ?? parsed.showChinese ?? true,
+      showEnglish: parsed.showEnglish ?? true,
+      displayOrder,
+      interleaveLines: parsed.interleaveLines ?? false,
+      romanizationFontSize: parsed.romanizationFontSize ?? 12,
+      englishFontSize: parsed.englishFontSize ?? 14,
+    }
   }
 
   const saveSettings = (settings) => {
@@ -42,58 +56,69 @@ export function useSettings() {
     }
   }
 
-  // Default settings - Korean optimized
   const defaultSettings = {
     fontSize: 18,
-    selectedFont: 'NotoSansSC',
+    selectedFont: 'Inter',
     showRomanization: true,
-    showKorean: true,
+    showRussian: true,
     showEnglish: true,
-    displayOrder: 'kr-en',
+    displayOrder: 'ru-en',
     interleaveLines: false,
-    romanizationFontSize: 10,
-    englishFontSize: 14
+    romanizationFontSize: 12,
+    englishFontSize: 14,
   }
 
   const savedSettings = loadSettings()
-  
-  // Create reactive settings with saved values or defaults
+
   const fontSize = ref(savedSettings?.fontSize ?? defaultSettings.fontSize)
   const selectedFont = ref(savedSettings?.selectedFont ?? defaultSettings.selectedFont)
   const showRomanization = ref(savedSettings?.showRomanization ?? defaultSettings.showRomanization)
-  const showKorean = ref(savedSettings?.showKorean ?? defaultSettings.showKorean)
+  const showRussian = ref(savedSettings?.showRussian ?? defaultSettings.showRussian)
   const showEnglish = ref(savedSettings?.showEnglish ?? defaultSettings.showEnglish)
   const displayOrder = ref(savedSettings?.displayOrder ?? defaultSettings.displayOrder)
   const interleaveLines = ref(savedSettings?.interleaveLines ?? defaultSettings.interleaveLines)
-  const romanizationFontSize = ref(savedSettings?.romanizationFontSize ?? defaultSettings.romanizationFontSize)
+  const romanizationFontSize = ref(
+    savedSettings?.romanizationFontSize ?? defaultSettings.romanizationFontSize,
+  )
   const englishFontSize = ref(savedSettings?.englishFontSize ?? defaultSettings.englishFontSize)
 
-  // Save settings whenever any setting changes
   const saveCurrentSettings = () => {
     saveSettings({
       fontSize: fontSize.value,
       selectedFont: selectedFont.value,
       showRomanization: showRomanization.value,
-      showKorean: showKorean.value,
+      showRussian: showRussian.value,
       showEnglish: showEnglish.value,
       displayOrder: displayOrder.value,
       interleaveLines: interleaveLines.value,
       romanizationFontSize: romanizationFontSize.value,
-      englishFontSize: englishFontSize.value
+      englishFontSize: englishFontSize.value,
     })
   }
 
-  // Watch all settings and save on change
-  watch([fontSize, selectedFont, showRomanization, showKorean, showEnglish, displayOrder, interleaveLines, romanizationFontSize, englishFontSize], () => {
-    saveCurrentSettings()
-  }, { deep: true })
+  watch(
+    [
+      fontSize,
+      selectedFont,
+      showRomanization,
+      showRussian,
+      showEnglish,
+      displayOrder,
+      interleaveLines,
+      romanizationFontSize,
+      englishFontSize,
+    ],
+    () => {
+      saveCurrentSettings()
+    },
+    { deep: true },
+  )
 
-  // Reset to defaults
   const resetSettings = () => {
     fontSize.value = defaultSettings.fontSize
     selectedFont.value = defaultSettings.selectedFont
     showRomanization.value = defaultSettings.showRomanization
-    showKorean.value = defaultSettings.showKorean
+    showRussian.value = defaultSettings.showRussian
     showEnglish.value = defaultSettings.showEnglish
     displayOrder.value = defaultSettings.displayOrder
     interleaveLines.value = defaultSettings.interleaveLines
@@ -105,13 +130,13 @@ export function useSettings() {
     fontSize,
     selectedFont,
     showRomanization,
-    showKorean,
+    showRussian,
     showEnglish,
     displayOrder,
     interleaveLines,
     romanizationFontSize,
     englishFontSize,
     resetSettings,
-    saveCurrentSettings
+    saveCurrentSettings,
   }
 }

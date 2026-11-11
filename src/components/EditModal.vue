@@ -19,7 +19,7 @@
             ref="textareaRef"
             v-model="editText"
             :placeholder="`Edit ${title} text...`"
-            class="w-full h-full min-h-[200px] p-4 border border-gray-200/60 rounded-xl font-inherit leading-relaxed resize-none outline-none transition-all duration-200 bg-white/60 text-gray-700 focus:border-purple-400 focus:bg-white focus:shadow-purple-100/20 placeholder:text-gray-400"
+            class="w-full h-full min-h-[200px] p-4 border border-gray-200/60 rounded-xl font-inherit leading-relaxed resize-none outline-none transition-all duration-200 bg-white/60 text-gray-700 focus:border-sky-400 focus:bg-white focus:shadow-sky-100/20 placeholder:text-gray-400"
             :style="{ fontSize: `${fontSize}px`, fontFamily: fontFamily }"
           ></textarea>
         </div>
@@ -29,7 +29,7 @@
           <button class="px-6 py-2.5 rounded-xl font-medium cursor-pointer transition-all duration-200 text-sm bg-white/60 border border-gray-200/60 text-gray-500 hover:bg-gray-50 hover:border-gray-300" :class="{ 'w-full justify-center': isMobile }" @click="close">
             Cancel
           </button>
-          <button class="px-6 py-2.5 rounded-xl font-medium cursor-pointer transition-all duration-200 text-sm bg-gradient-to-r from-purple-500 to-purple-600 text-white border-none hover:-translate-y-0.5 hover:shadow-purple-500/25" :class="{ 'w-full justify-center': isMobile }" @click="save">
+          <button class="px-6 py-2.5 rounded-xl font-medium cursor-pointer transition-all duration-200 text-sm bg-gradient-to-r from-sky-500 to-blue-600 text-white border-none hover:-translate-y-0.5 hover:shadow-sky-500/25" :class="{ 'w-full justify-center': isMobile }" @click="save">
             Save Changes
           </button>
         </div>
@@ -61,7 +61,7 @@ const props = defineProps({
   },
   fontFamily: {
     type: String,
-    default: "'Noto Sans SC', sans-serif"
+    default: "'Inter', 'Noto Sans', sans-serif"
   }
 })
 
@@ -176,7 +176,7 @@ textarea {
 
 /* Focus ring for textarea */
 textarea:focus {
-  box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.06);
+  box-shadow: 0 0 0 4px rgba(58, 166, 240, 0.1);
 }
 
 /* Mobile responsive overrides */
@@ -204,7 +204,7 @@ button {
 }
 
 /* Gradient button hover shadow */
-.hover\:shadow-purple-500\/25:hover {
-  box-shadow: 0 8px 24px rgba(139, 92, 246, 0.25);
+.hover\:shadow-sky-500\/25:hover {
+  box-shadow: 0 8px 24px rgba(58, 166, 240, 0.25);
 }
 </style>

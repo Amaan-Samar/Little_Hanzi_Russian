@@ -1,5 +1,5 @@
 {
-  "name": "Little_Hanzi_Korean",
+  "name": "little-hanzi-russian",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -12,7 +12,7 @@
   },
   "dependencies": {
     "@vueuse/core": "^11.1.0",
-    "koroman": "^1.0.16",
+    "iuliia": "^0.8.2",
     "lucide-vue-next": "^1.0.0",
     "pinia": "^2.2.4",
     "vue": "^3.5.12",
@@ -31,5 +31,6 @@
     "vite": "^5.4.8",
     "vite-plugin-pwa": "^0.20.5",
     "vite-plugin-vue-devtools": "^7.4.6"
-  }
+  },
+  "description": "Russian reading tool with romanization below each word and English translations"
 }

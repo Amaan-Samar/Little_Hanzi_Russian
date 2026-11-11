@@ -12,14 +12,14 @@ export default defineConfig({
         'icons/apple-icon-180.png'
       ],
       manifest: {
-        name: 'Little Korean',
-        short_name: 'Korean',
-        description: 'Korean reading tool with romanization',
-        theme_color: '#fffdfc',
-        background_color: '#fffdfc',
+        name: 'Little Hanzi Russian',
+        short_name: 'Russian',
+        description: 'Russian reading tool with romanization below each word',
+        theme_color: '#eaf7ff',
+        background_color: '#eaf7ff',
         display: 'standalone',
-        scope: '/Little_Hanzi_Korean/',
-        start_url: '/Little_Hanzi_Korean/',
+        scope: '/Little_Hanzi_Russian/',
+        start_url: '/Little_Hanzi_Russian/',
         icons: [
           {
             src: 'icons/manifest-icon-192.maskable.png',
@@ -49,7 +49,7 @@ export default defineConfig({
       }
     })
   ],
-  base: '/Little_Hanzi_Korean/',
+  base: '/Little_Hanzi_Russian/',
   build: {
     outDir: 'dist',
     assetsDir: 'assets',

@@ -97,8 +97,8 @@ onBeforeUnmount(() => {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(139, 92, 246, 0.08);
-  backdrop-filter: blur(20px);
+  background: rgba(58, 166, 240, 0.1);
+  backdrop-filter: blur(22px) saturate(160%);
   display: flex;
   align-items: center;
   justify-content: center;

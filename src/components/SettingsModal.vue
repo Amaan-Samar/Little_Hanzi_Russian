@@ -9,31 +9,32 @@
         </button>
 
         <div class="flex-1 overflow-y-auto p-6 pb-8 scrollbar-thin scrollbar-thumb-gray-200/50 scrollbar-track-transparent">
-          
           <!-- Live Preview Section -->
-          <div class="mb-6 bg-gradient-to-br from-purple-50/50 to-blue-50/50 rounded-xl p-4 border border-purple-100/50">
-            <label class="block text-[11px] font-semibold text-purple-600 uppercase tracking-wider mb-3">Live Preview</label>
+          <div class="mb-6 bg-gradient-to-br from-sky-50/50 to-blue-50/50 rounded-xl p-4 border border-sky-100/50">
+            <label class="block text-[11px] font-semibold text-sky-600 uppercase tracking-wider mb-3">Live Preview</label>
             <div class="bg-white/80 backdrop-blur-sm rounded-lg p-4 border border-white/50">
-              <!-- Korean with Romanization Preview -->
+              <!-- Russian with Romanization Preview -->
               <div class="mb-3" :style="{ fontFamily: getSelectedFontFamily() }">
-                <div class="flex flex-col items-start">
-                  <!-- Romanization above Korean -->
-                  <div class="flex gap-0 mb-0.5" v-if="localSettings.showRomanization">
-                    <span 
-                      v-for="(char, index) in previewKoreanChars" 
-                      :key="index"
-                      class="text-purple-500 font-light"
+                <div class="flex flex-wrap items-start gap-x-2.5 gap-y-1">
+                  <span
+                    v-for="(word, index) in previewWords"
+                    :key="index"
+                    class="flex flex-col items-center"
+                  >
+                    <span
+                      class="font-semibold text-gray-800"
+                      :style="{ fontSize: `${localSettings.fontSize}px` }"
+                    >
+                      {{ word }}
+                    </span>
+                    <span
+                      v-if="localSettings.showRomanization"
+                      class="text-sky-600 font-light leading-tight"
                       :style="{ fontSize: `${Math.min(localSettings.romanizationFontSize, localSettings.fontSize)}px` }"
                     >
-                      {{ getRomanizationForChar(char) }}
+                      {{ getRomanizationForWord(word) }}
                     </span>
-                  </div>
-                  <!-- Korean text -->
-                  <div class="flex gap-0 font-semibold" :style="{ fontSize: `${localSettings.fontSize}px` }">
-                    <span v-for="(char, index) in previewKoreanChars" :key="index">
-                      {{ char }}
-                    </span>
-                  </div>
+                  </span>
                 </div>
               </div>
               
@@ -48,15 +49,15 @@
               <div class="mt-2 text-[10px] text-gray-400 flex items-center gap-2">
                 <span class="font-medium">Order:</span>
                 <span class="px-2 py-0.5 bg-gray-100 rounded-full">
-                  {{ localSettings.displayOrder === 'kr-en' ? 'Korean → English' : 'English → Korean' }}
+                  {{ localSettings.displayOrder === 'ru-en' ? 'Russian → English' : 'English → Russian' }}
                 </span>
               </div>
             </div>
           </div>
 
-          <!-- Korean Font Size -->
+          <!-- Russian Font Size -->
           <div class="mb-6 last:mb-0">
-            <label class="block text-[11px] font-semibold text-gray-400 uppercase tracking-wider mb-3">Korean Font Size</label>
+            <label class="block text-[11px] font-semibold text-gray-400 uppercase tracking-wider mb-3">Russian Font Size</label>
             <div class="flex items-center gap-3.5 mb-3.5">
               <button 
                 class="w-9 h-9 rounded-full border border-black/5 bg-white cursor-pointer flex items-center justify-center transition-all duration-200 text-gray-500 hover:bg-gray-50 hover:border-black/10 hover:scale-105 active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed"
@@ -118,7 +119,7 @@
                 {{ size }}
               </button>
             </div>
-            <p class="text-xs text-gray-400 mt-2">Maximum: {{ localSettings.fontSize }}px (same as Korean)</p>
+            <p class="text-xs text-gray-400 mt-2">Maximum: {{ localSettings.fontSize }}px (same as Russian)</p>
           </div>
 
           <!-- English Font Size -->
@@ -152,7 +153,7 @@
                 {{ size }}
               </button>
             </div>
-            <p class="text-xs text-gray-400 mt-2">Maximum: {{ localSettings.fontSize }}px (same as Korean)</p>
+            <p class="text-xs text-gray-400 mt-2">Maximum: {{ localSettings.fontSize }}px (same as Russian)</p>
           </div>
 
           <!-- Font Family -->
@@ -171,8 +172,8 @@
                 <button
                   v-for="font in fontOptions"
                   :key="font.value"
-                  class="w-full px-4 py-2.5 bg-transparent border-none text-left cursor-pointer transition-all duration-200 text-gray-600 text-sm hover:bg-purple-50"
-                  :class="{ 'bg-purple-50/50 text-purple-700': localSettings.selectedFont === font.value }"
+                  class="w-full px-4 py-2.5 bg-transparent border-none text-left cursor-pointer transition-all duration-200 text-gray-600 text-sm hover:bg-sky-50"
+                  :class="{ 'bg-sky-50/50 text-sky-700': localSettings.selectedFont === font.value }"
                   :style="{ fontFamily: font.fontFamily }"
                   @click="handleFontChange(font.value)"
                 >
@@ -187,15 +188,15 @@
             <label class="block text-[11px] font-semibold text-gray-400 uppercase tracking-wider mb-3">Display Sections</label>
             <div class="flex flex-col gap-3">
               <label class="flex items-center gap-3 cursor-pointer text-sm text-gray-600">
-                <input type="checkbox" v-model="localSettings.showRomanization" class="w-4.5 h-4.5 cursor-pointer accent-purple-500" @change="handleShowRomanizationChange">
+                <input type="checkbox" v-model="localSettings.showRomanization" class="w-4.5 h-4.5 cursor-pointer accent-sky-500" @change="handleShowRomanizationChange">
                 <span>Romanization</span>
               </label>
               <label class="flex items-center gap-3 cursor-pointer text-sm text-gray-600">
-                <input type="checkbox" v-model="localSettings.showKorean" class="w-4.5 h-4.5 cursor-pointer accent-purple-500" @change="handleShowKoreanChange">
-                <span>Korean</span>
+                <input type="checkbox" v-model="localSettings.showRussian" class="w-4.5 h-4.5 cursor-pointer accent-sky-500" @change="handleShowRussianChange">
+                <span>Russian</span>
               </label>
               <label class="flex items-center gap-3 cursor-pointer text-sm text-gray-600">
-                <input type="checkbox" v-model="localSettings.showEnglish" class="w-4.5 h-4.5 cursor-pointer accent-purple-500" @change="handleShowEnglishChange">
+                <input type="checkbox" v-model="localSettings.showEnglish" class="w-4.5 h-4.5 cursor-pointer accent-sky-500" @change="handleShowEnglishChange">
                 <span>English</span>
               </label>
             </div>
@@ -206,12 +207,12 @@
             <label class="block text-[11px] font-semibold text-gray-400 uppercase tracking-wider mb-3">Display Order</label>
             <div class="flex gap-6" :class="{ 'flex-col gap-3': isMobile }">
               <label class="flex items-center gap-2 cursor-pointer text-sm text-gray-600">
-                <input type="radio" v-model="localSettings.displayOrder" value="en-kr" class="w-4.5 h-4.5 cursor-pointer accent-purple-500" @change="handleDisplayOrderChange">
-                <span>English → Korean</span>
+                <input type="radio" v-model="localSettings.displayOrder" value="en-ru" class="w-4.5 h-4.5 cursor-pointer accent-sky-500" @change="handleDisplayOrderChange">
+                <span>English → Russian</span>
               </label>
               <label class="flex items-center gap-2 cursor-pointer text-sm text-gray-600">
-                <input type="radio" v-model="localSettings.displayOrder" value="kr-en" class="w-4.5 h-4.5 cursor-pointer accent-purple-500" @change="handleDisplayOrderChange">
-                <span>Korean → English</span>
+                <input type="radio" v-model="localSettings.displayOrder" value="ru-en" class="w-4.5 h-4.5 cursor-pointer accent-sky-500" @change="handleDisplayOrderChange">
+                <span>Russian → English</span>
               </label>
             </div>
           </div>
@@ -222,6 +223,18 @@
             </button>
           </div>
         </div>
+
+        <!-- Footer -->
+        <div class="flex items-center justify-between gap-3 px-6 py-4 border-t border-sky-100/70 flex-shrink-0">
+          <span class="text-[11px] text-gray-400">Changes save automatically</span>
+          <button
+            class="px-5 py-2 rounded-lg text-sm font-semibold text-white cursor-pointer transition-all duration-200 hover:-translate-y-0.5"
+            style="background: linear-gradient(135deg, #37a3ee 0%, #1d84ce 100%); box-shadow: 0 8px 18px rgba(31, 134, 214, 0.22)"
+            @click="close"
+          >
+            Done
+          </button>
+        </div>
       </div>
     </div>
   </Teleport>
@@ -230,7 +243,7 @@
 <script setup>
 import { ref, watch, onMounted, onBeforeUnmount } from 'vue'
 import { X, Minus, Plus, ChevronDown } from 'lucide-vue-next'
-import { romanize } from 'koroman'
+import { romanizeRussian } from '../utils/russianRomanizer'
 
 const props = defineProps({
   isOpen: {
@@ -245,16 +258,16 @@ const props = defineProps({
 
 const emit = defineEmits(['close', 'save', 'reset'])
 
-const localSettings = ref({ 
+const localSettings = ref({
   fontSize: 18,
-  selectedFont: 'NotoSansSC',
+  selectedFont: 'Inter',
   showRomanization: true,
-  showKorean: true,
+  showRussian: true,
   showEnglish: true,
-  displayOrder: 'kr-en',
-  romanizationFontSize: 10,
+  displayOrder: 'ru-en',
+  romanizationFontSize: 12,
   englishFontSize: 14,
-  ...props.settings 
+  ...props.settings,
 })
 
 const isMobile = ref(false)
@@ -264,47 +277,37 @@ const romanizationPresets = [4, 6, 8, 10, 12, 14, 16, 18]
 const englishPresets = [6, 8, 10, 12, 14, 16, 18, 20]
 
 const fontOptions = [
-  { value: 'NotoSansSC', label: 'Noto Sans SC', fontFamily: "'Noto Sans SC', sans-serif" },
-  { value: 'NotoSerifSC', label: 'Noto Serif SC', fontFamily: "'Noto Serif SC', serif" },
-  { value: 'Inter', label: 'Inter', fontFamily: "'Inter', sans-serif" },
-  { value: 'Roboto', label: 'Roboto', fontFamily: "'Roboto', sans-serif" },
-  { value: 'Poppins', label: 'Poppins', fontFamily: "'Poppins', sans-serif" },
-  { value: 'ZCOOLKuaiLe', label: 'ZCOOL KuaiLe', fontFamily: "'ZCOOL KuaiLe', cursive" },
-  { value: 'MaShanZheng', label: 'Ma Shan Zheng', fontFamily: "'Ma Shan Zheng', cursive" }
+  { value: 'Inter', label: 'Inter', fontFamily: "'Inter', 'Noto Sans', sans-serif" },
+  { value: 'NotoSans', label: 'Noto Sans', fontFamily: "'Noto Sans', 'Inter', sans-serif" },
+  { value: 'PTSerif', label: 'PT Serif', fontFamily: "'PT Serif', Georgia, serif" },
+  { value: 'NotoSerif', label: 'Noto Serif', fontFamily: "'Noto Serif', Georgia, serif" },
+  { value: 'Roboto', label: 'Roboto', fontFamily: "'Roboto', 'Noto Sans', sans-serif" },
+  { value: 'Poppins', label: 'Poppins', fontFamily: "'Poppins', 'Noto Sans', sans-serif" },
+  { value: 'Georgia', label: 'Georgia', fontFamily: "Georgia, 'Times New Roman', serif" },
 ]
 
-// Preview Korean characters
-const previewKoreanChars = ['안', '녕', '하', '세', '요']
+// Preview words (Russian)
+const previewWords = ['Привет,', 'это', 'пример', 'текста']
 
-// Helper function to get romanization for a character
-const getRomanizationForChar = (char) => {
-  try {
-    return romanize(char, { 
-      usePronunciationRules: true,
-      casingOption: 'lowercase'
-    })
-  } catch {
-    return char
-  }
-}
+const getRomanizationForWord = (word) => romanizeRussian(word)
 
 let fontSizeTimeout = null
 
 const getSelectedFontLabel = () => {
-  const font = fontOptions.find(f => f.value === localSettings.value.selectedFont)
-  return font ? font.label : 'Noto Sans SC'
+  const font = fontOptions.find((f) => f.value === localSettings.value.selectedFont)
+  return font ? font.label : 'Inter'
 }
 
 const getSelectedFontFamily = () => {
-  const font = fontOptions.find(f => f.value === localSettings.value.selectedFont)
-  return font ? font.fontFamily : "'Noto Sans SC', sans-serif"
+  const font = fontOptions.find((f) => f.value === localSettings.value.selectedFont)
+  return font ? font.fontFamily : "'Inter', 'Noto Sans', sans-serif"
 }
 
 const toggleFontDropdown = () => {
   isFontDropdownOpen.value = !isFontDropdownOpen.value
 }
 
-// Korean font size controls
+// Russian font size controls
 const increaseFontSize = () => {
   if (localSettings.value.fontSize < 32) {
     localSettings.value.fontSize += 2
@@ -321,7 +324,7 @@ const decreaseFontSize = () => {
 
 const setFontSize = (size) => {
   localSettings.value.fontSize = size
-  // Ensure romanization and English don't exceed the new Korean size
+  // Ensure romanization and English don't exceed the new Russian size
   if (localSettings.value.romanizationFontSize > size) {
     localSettings.value.romanizationFontSize = size
   }
@@ -392,7 +395,7 @@ const handleShowRomanizationChange = () => {
   emit('save', localSettings.value)
 }
 
-const handleShowKoreanChange = () => {
+const handleShowRussianChange = () => {
   emit('save', localSettings.value)
 }
 
@@ -420,13 +423,13 @@ const close = () => {
 const resetToDefaults = () => {
   const defaults = {
     fontSize: 18,
-    selectedFont: 'NotoSansSC',
+    selectedFont: 'Inter',
     showRomanization: true,
-    showKorean: true,
+    showRussian: true,
     showEnglish: true,
-    displayOrder: 'kr-en',
-    romanizationFontSize: 10,
-    englishFontSize: 14
+    displayOrder: 'ru-en',
+    romanizationFontSize: 12,
+    englishFontSize: 14,
   }
   localSettings.value = { ...defaults }
   emit('reset')
@@ -543,7 +546,7 @@ onBeforeUnmount(() => {
 /* Custom checkbox and radio styles using accent-color */
 input[type="checkbox"],
 input[type="radio"] {
-  accent-color: #8B5CF6;
+  accent-color: #37a3ee;
 }
 
 /* Mobile responsive adjustments */

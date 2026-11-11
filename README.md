@@ -1,42 +1,38 @@
+# Little Hanzi Russian
 
-# LittleHanzi
+Little Hanzi is a reading-first language-learning app. This version is for **Russian**: paste a Russian article and its English translation, then read them paragraph by paragraph with a quiet romanization underneath every Russian word.
 
-Little hanzi is a nice simple that i created to make chinese learning process simple efficient and clean. It teches chinese via read articles. I was looking for something similar solution in the open source solution, and could not find any so i decided to create this for myself. Latter on i made it pubic so that if there is some else stuck in the same problem as me, They can use it.
-
-
-
-## Screenshot
-
-![LittleHanzi Demo](./data/demo/demo.png)
-
-**Live Demo:** [Little Hanzi](https://amaan-samar.github.io/Little_Hanzi_Chinese/)
-## What is this?
-
-Little Hanzi lets you paste Chinese text and its English translation, then displays them side-by-side with pinyin pronunciation guides. Perfect for reading practice and vocabulary building.
+The romanization is intentionally placed **below** the Russian text, so your eyes move from the Cyrillic letters down to the sound — which makes it easier to build real alphabet recognition instead of relying on the Latin line.
 
 ## Features
 
-- **Paragraph by paragraph reading** - Compare Chinese and English text
-- **Pinyin support** - Toggle pinyin on/off above Chinese characters
-- **Customizable** - Change font size, font family, and display order
-- **Mobile friendly** - Works on phones and tablets
-- **Works offline** - Install as PWA on your device
-- **Settings save** - Your preferences are remembered
+- **Paragraph-by-paragraph reading** — Russian and English stay aligned per paragraph
+- **Romanization below each word** — powered by [`iuliia`](https://github.com/nalgeon/iuliia-js) with the Wikipedia schema, so letter combinations and word endings are handled properly
+- **Automatic article removal** — English “a”, “an”, and “the” are stripped from pasted text and from the reading view
+- **Word counts** — every Russian and English paragraph shows its own word count, plus totals in the input headers
+- **Paragraph-count validation** — if the Russian and English pastes have a different number of paragraphs, the app tells you immediately
+- **Bookmarks** — double-click/double-tap a paragraph to bookmark it
+- **Jump to editor** — the paragraph menu can select the matching paragraph in the editor so you can fix it quickly
+- **Resume reading** — if you close the app mid-read with a bookmark, the next launch offers to continue from that paragraph
+- **History with an unfinished-reads tab** — bookmarked articles appear first by default
+- **Ice / liquid-glass UI** — a cold Russian-winter palette with frosted-glass surfaces
+- **Customizable** — font size, romanization size, English size, font family, display order
+- **Mobile friendly and installable** — PWA-ready with offline support after first load
 
-## Demo Content
+## Russian romanization
 
-The `/data` folder contains sample articles:
-- `cn.txt` - Chinese text samples
-- `en.txt` - English translations
+The app uses [`iuliia`](https://www.npmjs.com/package/iuliia) with its Wikipedia schema. It is a transliteration library (rather than a stress-aware pronunciation dictionary), so it does not reduce unstressed vowels like `о → а`. What it does handle well:
 
-Copy these into the app to see how it works.
+- multi-letter sounds: `ж → zh`, `х → kh`, `ц → ts`, `ч → ch`, `ш → sh`, `щ → shch`
+- yotized vowels: `е → ye`, `ё → yo`, `ю → yu`, `я → ya`
+- soft/hard signs in context (`объявление → obyavleniye`, `подъезд → podyezd`)
+- word endings and letter combinations via the schema rules
+
+If you later want stress-aware, textbook-style pronunciation (`молоко → malako`), the right next step is adding a stress-marked dictionary or a morphological analyzer; the current romanizer is a solid, predictable base.
 
 ## Setup
 
 ```bash
-# Clone the repo
-git clone https://github.com/Amaan-Samar/Little_Hanzi_Chinese.git
-
 # Install dependencies
 npm install
 
@@ -45,15 +41,18 @@ npm run dev
 
 # Build for production
 npm run build
+
+# Lint
+npm run lint
 ```
 
-## Tech Stack
+## Tech stack
 
-- Vue 3
-- Vite
-- pinyin-pro
+- Vue 3 + Vite
+- Tailwind CSS
+- `iuliia` for Russian romanization
+- `vite-plugin-pwa`
 
 ## License
 
 MIT
-```

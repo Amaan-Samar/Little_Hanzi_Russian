@@ -1,4 +1,4 @@
-npx pwa-asset-generator public/korean.png public/icons \
+npx pwa-asset-generator public/logo.png public/icons \
   --background "#fffdfc" \
   --icon-only \
   --favicon

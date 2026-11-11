@@ -6,7 +6,7 @@ const router = createRouter({
     {
       path: '/',
       name: 'converter',
-      component: () => import('../components/KoreanConverter.vue'), 
+      component: () => import('../components/RussianConverter.vue'),
     },
   ],
 })
