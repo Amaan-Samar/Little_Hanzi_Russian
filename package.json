@@ -14,7 +14,9 @@
     "@vueuse/core": "^11.1.0",
     "iuliia": "^0.8.2",
     "lucide-vue-next": "^1.0.0",
+    "lz-string": "^1.5.0",
     "pinia": "^2.2.4",
+    "qrcode": "^1.5.4",
     "vue": "^3.5.12",
     "vue-router": "^4.4.5"
   },

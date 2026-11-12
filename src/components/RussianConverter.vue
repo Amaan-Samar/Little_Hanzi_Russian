@@ -18,6 +18,15 @@
           <span v-if="isSaving" class="save-spinner"></span>
         </button>
 
+        <button
+          class="share-icon-btn"
+          @click="shareCurrentArticle"
+          title="Share this article"
+          :disabled="!russianText.trim()"
+        >
+          <Share2 :size="20" />
+        </button>
+
         <button class="history-icon-btn" @click="openHistoryModal" title="Reading History">
           <BookOpen :size="22" />
         </button>
@@ -38,10 +47,40 @@
       :articles="articles"
       :isCurrentArticle="isCurrentArticle"
       :formatDate="formatDate"
+      :getLikeCount="getLikeCount"
       @close="closeHistoryModal"
       @load-article="loadArticleIntoEditor"
       @delete-article="handleDeleteArticle"
       @delete-all="handleDeleteAllArticles"
+      @share-article="openShareModal"
+      @toggle-archive="handleToggleArchive"
+      @open-backup="openBackupModal"
+    />
+
+    <!-- Share Modal -->
+    <ShareModal
+      :isOpen="isShareModalOpen"
+      :article="shareTarget"
+      :displayName="displayName"
+      @close="closeShareModal"
+      @save-name="handleSaveDisplayName"
+    />
+
+    <!-- Backup Modal -->
+    <BackupModal
+      :isOpen="isBackupModalOpen"
+      :backupSupported="backupSupported"
+      :backupStatus="backupStatus"
+      :backupFileName="backupFileName"
+      :backupLastSaved="backupLastSaved"
+      :articleCount="articles.length"
+      @close="closeBackupModal"
+      @choose-backup="handleChooseBackup"
+      @reconnect-backup="handleReconnectBackup"
+      @disable-backup="handleDisableBackup"
+      @download-backup="handleDownloadBackup"
+      @import-backup="handleImportBackup"
+      @export-share="handleExportShareLibrary"
     />
 
     <!-- Info Modal -->
@@ -219,26 +258,41 @@
               @touchmove.passive="handleTouchMove"
               @touchend.passive="handleTouchEnd(sentenceId)"
             >
-              <button
-                v-if="currentBookmark === sentenceId"
-                class="bookmark-btn is-active"
-                @click.stop="toggleBookmark(sentenceId)"
-                title="Remove bookmark"
-              >
-                <Bookmark :size="14" fill="currentColor" />
-              </button>
-
-              <template
-                v-if="focusedParagraph === sentenceId && currentBookmark !== sentenceId"
-              >
+              <div class="paragraph-actions">
                 <button
+                  class="paragraph-like-btn"
+                  :class="{ 'is-liked': isLikedParagraph(sentenceId) }"
+                  @click.stop="toggleLike(sentenceId)"
+                  :title="
+                    isLikedParagraph(sentenceId)
+                      ? 'Remove like from this paragraph'
+                      : 'Like this paragraph'
+                  "
+                >
+                  <Heart
+                    :size="14"
+                    :fill="isLikedParagraph(sentenceId) ? 'currentColor' : 'none'"
+                  />
+                </button>
+
+                <button
+                  v-if="currentBookmark === sentenceId"
+                  class="bookmark-btn is-active"
+                  @click.stop="toggleBookmark(sentenceId)"
+                  title="Remove bookmark"
+                >
+                  <Bookmark :size="14" fill="currentColor" />
+                </button>
+
+                <button
+                  v-if="focusedParagraph === sentenceId && currentBookmark !== sentenceId"
                   class="paragraph-menu-btn"
                   @click.stop="toggleParagraphMenu(sentenceId, $event)"
                   title="More actions"
                 >
                   <MoreVertical :size="14" />
                 </button>
-              </template>
+              </div>
 
               <div class="paragraph-topline">
                 <span class="lang-badge lang-badge-ru">RU</span>
@@ -353,6 +407,8 @@ import {
   Snowflake,
   PencilLine,
   Copy,
+  Share2,
+  Heart,
 } from 'lucide-vue-next'
 
 import ArticleHistoryModal from './ArticleHistoryModal.vue'
@@ -361,10 +417,20 @@ import ConfirmModal from './ConfirmModal.vue'
 import SettingsModal from './SettingsModal.vue'
 import InfoModal from './InfoModal.vue'
 import LoadingSpinner from './LoadingSpinner.vue'
+import ShareModal from './ShareModal.vue'
+import BackupModal from './BackupModal.vue'
 
 import { useArticleHistory } from '../composables/useArticleHistory'
 import { useSettings } from '../composables/useSettings'
+import { useBackup } from '../composables/useBackup'
 import { tokenizeRussianParagraph } from '../utils/russianRomanizer'
+import {
+  makeBackupBundle,
+  makeShareBundle,
+  parseBundle,
+  parseShareHash,
+  downloadJson,
+} from '../utils/sharePayload'
 import {
   normalizeParagraphBreaks,
   splitParagraphs,
@@ -382,6 +448,7 @@ const {
   displayOrder,
   romanizationFontSize,
   englishFontSize,
+  displayName,
   resetSettings,
 } = useSettings()
 
@@ -403,7 +470,27 @@ const {
   setBookmark,
   getResumeArticle,
   clearLastSession,
+  markArticleRead,
+  toggleParagraphLike,
+  isParagraphLiked,
+  getLikeCount,
+  toggleArchived,
+  importBundle,
 } = useArticleHistory()
+
+const {
+  backupSupported,
+  backupFileName,
+  backupStatus,
+  backupLastSaved,
+  initBackup,
+  chooseBackupFile,
+  reconnectBackup,
+  disableBackup,
+  scheduleBackup,
+  downloadBackup,
+  pickImportFile,
+} = useBackup()
 
 const russianText = ref('')
 const englishText = ref('')
@@ -429,6 +516,9 @@ const editModalContent = computed(() =>
 )
 
 const isHistoryModalOpen = ref(false)
+const isShareModalOpen = ref(false)
+const isBackupModalOpen = ref(false)
+const shareTarget = ref(null)
 const resumeArticle = ref(null)
 
 // Bookmark & paragraph menu state
@@ -525,6 +615,111 @@ const closeInfoModal = () => {
   isInfoModalOpen.value = false
 }
 
+// ---------- Sharing ----------
+const shareCurrentArticle = () => {
+  if (!russianText.value.trim()) return
+  const current = currentArticleId.value
+    ? articles.value.find((item) => item.id === currentArticleId.value)
+    : null
+  const firstLine = splitParagraphs(russianText.value)[0] || 'Untitled article'
+  shareTarget.value = {
+    ...(current || {}),
+    title:
+      current?.title ||
+      (firstLine.length > 60 ? `${firstLine.slice(0, 60)}...` : firstLine),
+    russianContent: russianText.value,
+    englishContent: englishText.value,
+  }
+  isShareModalOpen.value = true
+}
+
+const openShareModal = (article) => {
+  if (!article?.russianContent?.trim()) return
+  shareTarget.value = article
+  isShareModalOpen.value = true
+}
+
+const closeShareModal = () => {
+  isShareModalOpen.value = false
+}
+
+const handleSaveDisplayName = (name) => {
+  displayName.value = (name || '').slice(0, 40)
+}
+
+// ---------- Backup & sync ----------
+const datedName = (prefix) => `${prefix}-${new Date().toISOString().slice(0, 10)}.json`
+
+const backupData = () => makeBackupBundle(articles.value)
+
+// Keep the durable backup file current whenever the library changes.
+watch(articles, () => scheduleBackup(backupData), { deep: true })
+
+const openBackupModal = () => {
+  isBackupModalOpen.value = true
+}
+
+const closeBackupModal = () => {
+  isBackupModalOpen.value = false
+}
+
+const handleChooseBackup = async () => {
+  const result = await chooseBackupFile(backupData)
+  if (result.ok) {
+    showToastMessage(`Auto-backup connected to ${result.fileName}`)
+  } else if (!result.canceled) {
+    showToastMessage(result.error || 'Could not set up auto-backup.', 'error')
+  }
+}
+
+const handleReconnectBackup = async () => {
+  const result = await reconnectBackup(backupData)
+  if (result.ok) showToastMessage('Auto-backup reconnected.')
+  else showToastMessage(result.error || 'Could not reconnect the backup.', 'error')
+}
+
+const handleDisableBackup = async () => {
+  await disableBackup()
+  showToastMessage('Auto-backup disconnected.', 'info')
+}
+
+const handleDownloadBackup = () => {
+  downloadBackup(backupData(), datedName('little-hanzi-russian-backup'))
+  showToastMessage('Backup file downloaded.')
+}
+
+const handleImportBackup = async () => {
+  const picked = await pickImportFile()
+  if (!picked.ok) {
+    if (!picked.canceled) {
+      showToastMessage(picked.error || 'Could not read that file.', 'error')
+    }
+    return
+  }
+
+  const parsed = parseBundle(picked.text)
+  if (!parsed.ok) {
+    showToastMessage(parsed.error, 'error')
+    return
+  }
+
+  const { added, merged } = importBundle(parsed.bundle)
+  if (!added && !merged) {
+    showToastMessage('Nothing new to import.', 'info')
+    return
+  }
+  showToastMessage(
+    `Imported ${added} new ${added === 1 ? 'article' : 'articles'}` +
+      (merged ? `, merged ${merged}.` : '.'),
+  )
+}
+
+const handleExportShareLibrary = () => {
+  const bundle = makeShareBundle(articles.value, displayName.value || 'A friend')
+  downloadJson(bundle, datedName('little-hanzi-russian-library'))
+  showToastMessage('Library bundle downloaded. Send it to a friend!')
+}
+
 const handleManualSave = () => {
   if (!russianText.value.trim()) return
 
@@ -579,6 +774,7 @@ const loadArticleIntoEditor = async (article) => {
   resumeArticle.value = null
   cancelAutoSave()
   setCurrentArticle(article.id)
+  markArticleRead(article.id)
 
   isLoading.value = false
 
@@ -612,6 +808,26 @@ const toggleBookmark = (paragraphIndex) => {
   const nextBookmark = currentBookmark.value === index ? null : index
   currentBookmark.value = nextBookmark
   setBookmark(currentArticleId.value, nextBookmark)
+}
+
+// ---------- Paragraph likes ----------
+const isLikedParagraph = (paragraphIndex) => {
+  if (!currentArticleId.value) return false
+  return isParagraphLiked(currentArticleId.value, paragraphIndex)
+}
+
+const toggleLike = (paragraphIndex) => {
+  if (!currentArticleId.value) {
+    const article = createArticle(russianText.value, englishText.value)
+    if (!article) return
+  }
+  if (!currentArticleId.value) return
+
+  const liked = toggleParagraphLike(currentArticleId.value, paragraphIndex)
+  showToastMessage(
+    liked ? '❤️ Paragraph liked' : 'Like removed',
+    liked ? 'success' : 'info',
+  )
 }
 
 // ---------- Paragraph focus & menu ----------
@@ -746,16 +962,55 @@ const copyParagraph = async (index) => {
   closeParagraphMenu()
 }
 
+// ---------- Incoming shares ----------
+const handleIncomingShare = async () => {
+  const shared = parseShareHash(window.location.hash)
+  if (!shared) return false
+
+  // Drop the payload from the address bar so a refresh never re-imports it.
+  window.history.replaceState(
+    null,
+    '',
+    `${window.location.pathname}${window.location.search}`,
+  )
+
+  const { added } = importBundle(
+    {
+      articles: [{ ...shared, id: undefined }],
+      sharedBy: shared.sharedBy,
+    },
+  )
+  const key = shared.russianContent.trim()
+  const target = articles.value.find(
+    (article) => (article.russianContent || '').trim() === key,
+  )
+
+  if (target) await loadArticleIntoEditor(target)
+
+  showToastMessage(
+    added
+      ? `Shared by ${shared.sharedBy}: article opened.`
+      : `${shared.sharedBy} shared an article you already have.`,
+  )
+  return true
+}
+
 // ---------- Lifecycle ----------
-onMounted(() => {
-  resumeArticle.value = getResumeArticle()
+onMounted(async () => {
+  const openedShare = await handleIncomingShare()
+  if (!openedShare) resumeArticle.value = getResumeArticle()
+
+  await initBackup()
+
   document.addEventListener('click', handleDocumentClick)
   document.addEventListener('keydown', handleKeydown)
+  window.addEventListener('hashchange', handleIncomingShare)
 })
 
 onBeforeUnmount(() => {
   document.removeEventListener('click', handleDocumentClick)
   document.removeEventListener('keydown', handleKeydown)
+  window.removeEventListener('hashchange', handleIncomingShare)
   clearTimeout(toastTimeout)
 })
 
@@ -764,6 +1019,14 @@ const handleDeleteArticle = (articleId) => {
 }
 const handleDeleteAllArticles = () => {
   deleteAllArticles()
+}
+
+const handleToggleArchive = (articleId) => {
+  const archived = toggleArchived(articleId)
+  showToastMessage(
+    archived ? '🗄️ Article archived' : 'Article restored from archive',
+    'info',
+  )
 }
 
 // ---------- Settings ----------
@@ -776,6 +1039,7 @@ const settings = computed(() => ({
   displayOrder: displayOrder.value,
   romanizationFontSize: romanizationFontSize.value,
   englishFontSize: englishFontSize.value,
+  displayName: displayName.value,
 }))
 
 const openSettingsModal = () => {
@@ -805,6 +1069,7 @@ const saveSettings = (newSettings) => {
   displayOrder.value = newSettings.displayOrder
   romanizationFontSize.value = newSettings.romanizationFontSize
   englishFontSize.value = newSettings.englishFontSize
+  displayName.value = (newSettings.displayName || '').slice(0, 40)
 }
 
 const resetToDefaults = () => {
@@ -958,6 +1223,7 @@ watch(comparisonData, async () => {
 
 /* Header icon buttons */
 .save-icon-btn,
+.share-icon-btn,
 .history-icon-btn,
 .settings-icon-btn,
 .info-icon-btn {
@@ -975,6 +1241,7 @@ watch(comparisonData, async () => {
 }
 
 .save-icon-btn:hover:not(:disabled),
+.share-icon-btn:hover:not(:disabled),
 .history-icon-btn:hover,
 .settings-icon-btn:hover,
 .info-icon-btn:hover {
@@ -983,7 +1250,8 @@ watch(comparisonData, async () => {
   color: var(--primary-dark);
 }
 
-.save-icon-btn:disabled {
+.save-icon-btn:disabled,
+.share-icon-btn:disabled {
   opacity: 0.35;
   cursor: not-allowed;
 }
@@ -1417,7 +1685,7 @@ watch(comparisonData, async () => {
   align-items: center;
   gap: 8px;
   margin-bottom: 9px;
-  padding-right: 34px;
+  padding-right: 68px;
   min-height: 20px;
 }
 
@@ -1503,11 +1771,20 @@ watch(comparisonData, async () => {
   text-align: center;
 }
 
-/* Bookmark button */
-.bookmark-btn {
+/* Paragraph actions: like is always visible; bookmark/menu appear in context */
+.paragraph-actions {
   position: absolute;
   top: 8px;
   right: 8px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  z-index: 5;
+}
+
+.paragraph-like-btn,
+.bookmark-btn,
+.paragraph-menu-btn {
   width: 28px;
   height: 28px;
   border-radius: 50%;
@@ -1519,44 +1796,31 @@ watch(comparisonData, async () => {
   cursor: pointer;
   color: var(--text-light);
   transition: background 0.18s ease, color 0.18s ease, border-color 0.18s ease;
-  z-index: 5;
 }
 
-.bookmark-btn:hover {
+.paragraph-like-btn:hover,
+.bookmark-btn:hover,
+.paragraph-menu-btn:hover {
   background: var(--p-50);
   border-color: var(--border-accent);
   color: var(--primary);
+}
+
+.paragraph-like-btn.is-liked {
+  color: #e11d48;
+  background: #fff1f2;
+  border-color: #fecdd3;
+}
+
+.paragraph-like-btn.is-liked:hover {
+  color: #be123c;
+  background: #ffe4e6;
 }
 
 .bookmark-btn.is-active {
   color: var(--primary);
   background: var(--p-50);
   border-color: var(--p-200);
-}
-
-/* ⋮ menu button — top-right of the focused paragraph */
-.paragraph-menu-btn {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  border: 1px solid var(--border);
-  background: var(--surface);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  color: var(--text-light);
-  transition: background 0.18s ease, color 0.18s ease, border-color 0.18s ease;
-  z-index: 5;
-}
-
-.paragraph-menu-btn:hover {
-  background: var(--p-50);
-  border-color: var(--border-accent);
-  color: var(--primary);
 }
 
 /* Teleported menu (rendered into <body>) */

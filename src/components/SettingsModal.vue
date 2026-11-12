@@ -219,6 +219,19 @@
             </div>
           </div>
 
+          <!-- Your Name -->
+          <div class="mb-6 last:mb-0">
+            <label class="block text-[11px] font-semibold text-gray-400 uppercase tracking-wider mb-3">Your Name</label>
+            <input
+              v-model="localSettings.displayName"
+              maxlength="40"
+              placeholder="e.g. Amaan"
+              class="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg text-sm text-gray-700 outline-none transition-all duration-200 focus:border-sky-400 placeholder:text-gray-400"
+              @input="emitSave"
+            />
+            <p class="text-xs text-gray-400 mt-2">Shown as “Shared by …” when you send articles to a friend.</p>
+          </div>
+
           <div class="mt-2">
             <button class="w-full px-5 py-2.5 bg-red-50 border border-red-200 rounded-lg text-red-600 font-medium cursor-pointer transition-all duration-200 hover:bg-red-100 hover:-translate-y-0.5" @click="resetToDefaults">
               Reset to defaults
@@ -269,6 +282,7 @@ const localSettings = ref({
   displayOrder: 'ru-en',
   romanizationFontSize: 12,
   englishFontSize: 14,
+  displayName: '',
   ...props.settings,
 })
 
@@ -440,6 +454,7 @@ const resetToDefaults = () => {
     displayOrder: 'ru-en',
     romanizationFontSize: 12,
     englishFontSize: 14,
+    displayName: '',
   }
   localSettings.value = { ...defaults }
   emit('reset')

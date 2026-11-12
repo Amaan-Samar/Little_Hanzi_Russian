@@ -47,6 +47,7 @@ export function useSettings() {
       interleaveLines: parsed.interleaveLines ?? false,
       romanizationFontSize: Math.min(parsed.romanizationFontSize ?? 12, fontSize),
       englishFontSize: Math.min(parsed.englishFontSize ?? 14, fontSize),
+      displayName: typeof parsed.displayName === 'string' ? parsed.displayName.slice(0, 40) : '',
     }
   }
 
@@ -68,6 +69,7 @@ export function useSettings() {
     interleaveLines: false,
     romanizationFontSize: 12,
     englishFontSize: 14,
+    displayName: '',
   }
 
   const savedSettings = loadSettings()
@@ -83,6 +85,7 @@ export function useSettings() {
     savedSettings?.romanizationFontSize ?? defaultSettings.romanizationFontSize,
   )
   const englishFontSize = ref(savedSettings?.englishFontSize ?? defaultSettings.englishFontSize)
+  const displayName = ref(savedSettings?.displayName ?? defaultSettings.displayName)
 
   const saveCurrentSettings = () => {
     saveSettings({
@@ -95,6 +98,7 @@ export function useSettings() {
       interleaveLines: interleaveLines.value,
       romanizationFontSize: romanizationFontSize.value,
       englishFontSize: englishFontSize.value,
+      displayName: displayName.value,
     })
   }
 
@@ -109,6 +113,7 @@ export function useSettings() {
       interleaveLines,
       romanizationFontSize,
       englishFontSize,
+      displayName,
     ],
     () => {
       saveCurrentSettings()
@@ -126,6 +131,7 @@ export function useSettings() {
     interleaveLines.value = defaultSettings.interleaveLines
     romanizationFontSize.value = defaultSettings.romanizationFontSize
     englishFontSize.value = defaultSettings.englishFontSize
+    displayName.value = defaultSettings.displayName
   }
 
   return {
@@ -138,6 +144,7 @@ export function useSettings() {
     interleaveLines,
     romanizationFontSize,
     englishFontSize,
+    displayName,
     resetSettings,
     saveCurrentSettings,
   }

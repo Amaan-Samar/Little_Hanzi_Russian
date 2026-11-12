@@ -65,6 +65,18 @@
                   <span class="text-amber-500 mt-0.5">•</span>
                   <span>Double-click (or double-tap) any paragraph to bookmark it, then use the paragraph menu to jump straight to it in the editor</span>
                 </li>
+                <li class="flex items-start gap-2">
+                  <span class="text-amber-500 mt-0.5">•</span>
+                  <span>Tap the heart on a paragraph you enjoy — articles with the most liked paragraphs rise to the top of the Liked tab in History</span>
+                </li>
+                <li class="flex items-start gap-2">
+                  <span class="text-amber-500 mt-0.5">•</span>
+                  <span>Share a single article as a QR code: your friend scans it with their camera and it opens right here, rendered</span>
+                </li>
+                <li class="flex items-start gap-2">
+                  <span class="text-amber-500 mt-0.5">•</span>
+                  <span>Open History → Backup &amp; sync to keep a backup file on your disk and to share your whole library</span>
+                </li>
               </ul>
             </div>
 
