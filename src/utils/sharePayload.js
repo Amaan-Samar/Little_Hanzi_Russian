@@ -25,21 +25,65 @@ const normalizeLikes = (value) => {
 }
 
 /**
- * Small, QR-friendly payload. Short keys keep the URL inside QR limits.
+ * Stable signature for the Russian text. It lets a separate "English only"
+ * QR find the article created by an earlier "Russian only" QR.
  */
-export const buildSharePayload = (article, sharedBy) => {
-  if (!article?.russianContent?.trim()) return null
-  return {
+export const contentSignature = (value) => {
+  const text = cleanString(value).replace(/\s+/g, ' ').trim()
+  let hash = 5381
+  for (let i = 0; i < text.length; i++) {
+    hash = ((hash << 5) + hash) ^ text.charCodeAt(i)
+  }
+  return (hash >>> 0).toString(36)
+}
+
+/**
+ * Small, QR-friendly payload. Short keys keep the URL inside QR limits.
+ *
+ * part = 'full' shares Russian + English in one code. When that is too big for
+ * a QR, 'ru' and 'en' send the two halves separately; the English half carries
+ * a signature of the Russian text so the receiver can merge it into the right
+ * article.
+ */
+export const buildSharePayload = (article, sharedBy, part = 'full') => {
+  if (!article) return null
+
+  const russianContent = cleanString(article.russianContent)
+  const englishContent = cleanString(article.englishContent)
+  const by = sharedBy || article.sharedBy || 'A friend'
+  const title = article.title || russianContent.slice(0, 60) || 'Shared article'
+  const hash = contentSignature(russianContent)
+
+  if (part === 'en') {
+    if (!englishContent.trim()) return null
+    return {
+      v: SHARE_VERSION,
+      t: 'article',
+      p: 'en',
+      ti: title,
+      en: englishContent,
+      h: hash,
+      by,
+      at: Date.now(),
+    }
+  }
+
+  if (!russianContent.trim()) return null
+
+  const payload = {
     v: SHARE_VERSION,
     t: 'article',
     id: article.id || undefined,
-    ti: article.title || cleanString(article.russianContent).slice(0, 60),
-    ru: article.russianContent,
-    en: article.englishContent || '',
+    ti: title,
+    ru: russianContent,
     lk: normalizeLikes(article.likedParagraphs),
-    by: sharedBy || article.sharedBy || 'A friend',
+    h: hash,
+    by,
     at: Date.now(),
   }
+
+  if (part === 'ru') return { ...payload, p: 'ru', en: '' }
+  return { ...payload, en: englishContent }
 }
 
 export const encodeSharePayload = (payload) => {
@@ -60,12 +104,27 @@ export const decodeSharePayload = (encoded) => {
     try {
       const parsed = JSON.parse(LZString.decompressFromEncodedURIComponent(candidate))
       if (!parsed || typeof parsed !== 'object') continue
-      if (parsed.t !== 'article' || !cleanString(parsed.ru).trim()) continue
+      if (parsed.t !== 'article') continue
+
+      const part =
+        parsed.p === 'ru' || parsed.p === 'en' ? parsed.p : 'full'
+      const russianContent = cleanString(parsed.ru)
+      const englishContent = cleanString(parsed.en)
+
+      if (part === 'en' ? !englishContent.trim() : !russianContent.trim()) {
+        continue
+      }
+
       return {
         id: parsed.id || undefined,
-        title: cleanString(parsed.ti) || cleanString(parsed.ru).slice(0, 60),
-        russianContent: cleanString(parsed.ru),
-        englishContent: cleanString(parsed.en),
+        title:
+          cleanString(parsed.ti) ||
+          russianContent.slice(0, 60) ||
+          'Shared article',
+        russianContent,
+        englishContent,
+        part,
+        contentHash: cleanString(parsed.h) || contentSignature(russianContent),
         likedParagraphs: normalizeLikes(parsed.lk),
         sharedBy: cleanString(parsed.by) || 'A friend',
         sharedAt: Number(parsed.at) || Date.now(),

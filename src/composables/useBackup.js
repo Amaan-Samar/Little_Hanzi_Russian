@@ -239,7 +239,8 @@ export function useBackup() {
         return { ok: true, name: file.name, text: await file.text() }
       } catch (error) {
         if (error?.name === 'AbortError') return { ok: false, canceled: true }
-        return { ok: false, error: error?.message || 'Could not read that file.' }
+        // Some browsers expose the API but block it. Fall through to the
+        // classic <input type="file"> picker instead of failing outright.
       }
     }
 
@@ -247,6 +248,8 @@ export function useBackup() {
       const input = document.createElement('input')
       input.type = 'file'
       input.accept = 'application/json,.json'
+      input.style.position = 'fixed'
+      input.style.left = '-9999px'
       let settled = false
 
       const cleanup = () => {
@@ -262,7 +265,7 @@ export function useBackup() {
       const handleWindowFocus = () => {
         setTimeout(() => {
           if (!input.files?.length) finish({ ok: false, canceled: true })
-        }, 400)
+        }, 1200)
       }
 
       input.onchange = async () => {
@@ -276,6 +279,7 @@ export function useBackup() {
       }
       input.oncancel = () => finish({ ok: false, canceled: true })
       window.addEventListener('focus', handleWindowFocus)
+      document.body.appendChild(input)
       input.click()
     })
   }

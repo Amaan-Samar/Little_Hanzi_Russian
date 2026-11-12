@@ -1,5 +1,5 @@
 <template>
-  <div class="converter-wrapper">
+  <div class="converter-wrapper" @dragover.prevent @drop.prevent="handleFileDrop">
     <!-- Header with Logo and Settings -->
     <div class="app-header">
       <div class="logo-section">
@@ -55,6 +55,7 @@
       @share-article="openShareModal"
       @toggle-archive="handleToggleArchive"
       @open-backup="openBackupModal"
+      @import-file="handleImportBackup"
     />
 
     <!-- Share Modal -->
@@ -430,6 +431,7 @@ import {
   parseBundle,
   parseShareHash,
   downloadJson,
+  contentSignature,
 } from '../utils/sharePayload'
 import {
   normalizeParagraphBreaks,
@@ -688,6 +690,27 @@ const handleDownloadBackup = () => {
   showToastMessage('Backup file downloaded.')
 }
 
+const importBundleText = (text, sourceName = '') => {
+  const parsed = parseBundle(text)
+  if (!parsed.ok) {
+    showToastMessage(parsed.error, 'error')
+    return false
+  }
+
+  const { added, merged } = importBundle(parsed.bundle)
+  if (!added && !merged) {
+    showToastMessage('Nothing new to import.', 'info')
+    return true
+  }
+
+  showToastMessage(
+    `Imported ${added} new ${added === 1 ? 'article' : 'articles'}` +
+      (merged ? `, merged ${merged}.` : '.') +
+      (sourceName ? ` (${sourceName})` : ''),
+  )
+  return true
+}
+
 const handleImportBackup = async () => {
   const picked = await pickImportFile()
   if (!picked.ok) {
@@ -697,21 +720,24 @@ const handleImportBackup = async () => {
     return
   }
 
-  const parsed = parseBundle(picked.text)
-  if (!parsed.ok) {
-    showToastMessage(parsed.error, 'error')
+  importBundleText(picked.text, picked.name)
+}
+
+const handleFileDrop = async (event) => {
+  const file = event.dataTransfer?.files?.[0]
+  if (!file) return
+
+  if (!/\.json$/i.test(file.name) && file.type !== 'application/json') {
+    showToastMessage('Drop a Little Hanzi .json file.', 'error')
     return
   }
 
-  const { added, merged } = importBundle(parsed.bundle)
-  if (!added && !merged) {
-    showToastMessage('Nothing new to import.', 'info')
-    return
+  try {
+    importBundleText(await file.text(), file.name)
+  } catch (error) {
+    console.error('Could not read dropped file:', error)
+    showToastMessage('Could not read that file.', 'error')
   }
-  showToastMessage(
-    `Imported ${added} new ${added === 1 ? 'article' : 'articles'}` +
-      (merged ? `, merged ${merged}.` : '.'),
-  )
 }
 
 const handleExportShareLibrary = () => {
@@ -963,6 +989,29 @@ const copyParagraph = async (index) => {
 }
 
 // ---------- Incoming shares ----------
+const PENDING_EN_KEY = 'littleRussian_pendingEnglish'
+
+const readPendingEnglish = () => {
+  try {
+    const parsed = JSON.parse(localStorage.getItem(PENDING_EN_KEY) || '{}')
+    return parsed && typeof parsed === 'object' ? parsed : {}
+  } catch {
+    return {}
+  }
+}
+
+const writePendingEnglish = (pending) => {
+  try {
+    if (Object.keys(pending).length) {
+      localStorage.setItem(PENDING_EN_KEY, JSON.stringify(pending))
+    } else {
+      localStorage.removeItem(PENDING_EN_KEY)
+    }
+  } catch {
+    // Pending translations are a convenience; ignore storage failures.
+  }
+}
+
 const handleIncomingShare = async () => {
   const shared = parseShareHash(window.location.hash)
   if (!shared) return false
@@ -974,24 +1023,97 @@ const handleIncomingShare = async () => {
     `${window.location.pathname}${window.location.search}`,
   )
 
-  const { added } = importBundle(
-    {
-      articles: [{ ...shared, id: undefined }],
-      sharedBy: shared.sharedBy,
-    },
-  )
+  const hash = shared.contentHash
+  const findRussianArticle = () =>
+    articles.value.find(
+      (article) => contentSignature(article.russianContent) === hash,
+    )
+
+  // ---- English half of a split share ----
+  if (shared.part === 'en') {
+    const target = findRussianArticle()
+
+    if (!target) {
+      const pending = readPendingEnglish()
+      pending[hash] = {
+        en: shared.englishContent,
+        by: shared.sharedBy,
+        at: shared.sharedAt,
+      }
+      writePendingEnglish(pending)
+      showToastMessage(
+        'English saved. Now scan the Russian QR to complete the article.',
+        'info',
+      )
+      return true
+    }
+
+    if (String(target.englishContent || '').trim()) {
+      await loadArticleIntoEditor(target)
+      showToastMessage(
+        `${shared.sharedBy} shared a translation you already have.`,
+        'info',
+      )
+      return true
+    }
+
+    updateArticle(target.id, {
+      englishContent: shared.englishContent,
+      sharedBy: target.sharedBy || shared.sharedBy,
+      sharedAt: target.sharedAt || shared.sharedAt,
+    })
+    await loadArticleIntoEditor(target)
+    showToastMessage(`English translation received from ${shared.sharedBy}.`)
+    return true
+  }
+
+  // ---- Full article or Russian half ----
+  const isRussianOnly = shared.part === 'ru'
+  const { added } = importBundle({
+    articles: [{ ...shared, id: undefined }],
+    sharedBy: shared.sharedBy,
+  })
+
   const key = shared.russianContent.trim()
   const target = articles.value.find(
     (article) => (article.russianContent || '').trim() === key,
   )
 
+  // The English code may have arrived before the Russian one.
+  let mergedTranslation = false
+  if (
+    target &&
+    !String(target.englishContent || '').trim() &&
+    hash
+  ) {
+    const pending = readPendingEnglish()
+    const entry = pending[hash]
+    if (entry?.en) {
+      updateArticle(target.id, {
+        englishContent: entry.en,
+        sharedBy: target.sharedBy || entry.by || shared.sharedBy,
+      })
+      delete pending[hash]
+      writePendingEnglish(pending)
+      mergedTranslation = true
+    }
+  }
+
   if (target) await loadArticleIntoEditor(target)
 
-  showToastMessage(
-    added
-      ? `Shared by ${shared.sharedBy}: article opened.`
-      : `${shared.sharedBy} shared an article you already have.`,
-  )
+  if (isRussianOnly) {
+    showToastMessage(
+      mergedTranslation
+        ? `Russian and English received from ${shared.sharedBy}.`
+        : `Russian text received from ${shared.sharedBy}. Now scan the English QR.`,
+    )
+  } else {
+    showToastMessage(
+      added
+        ? `Shared by ${shared.sharedBy}: article opened.`
+        : `${shared.sharedBy} shared an article you already have.`,
+    )
+  }
   return true
 }
 

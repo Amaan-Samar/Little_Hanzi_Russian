@@ -91,8 +91,8 @@
               <button class="row-btn" @click="$emit('import-backup')">
                 <Upload :size="17" class="row-icon" />
                 <span class="flex-1 min-w-0 text-left">
-                  <span class="row-title">Import a backup or shared library</span>
-                  <span class="row-sub">Choose a .json file; existing articles are kept</span>
+                  <span class="row-title">Open a shared file or backup</span>
+                  <span class="row-sub">Pick a .json file from this device</span>
                 </span>
               </button>
 
@@ -107,9 +107,10 @@
           </div>
 
           <p class="text-[11px] text-gray-400 mt-5 leading-relaxed">
-            Imported articles arrive unread and keep the name of the person who
-            shared them. Your own read, bookmark, and archive state is never
-            overwritten.
+            Received an article file? Open it here, or just drag the .json file
+            onto the app. Imported articles arrive unread and keep the name of the
+            person who shared them. Your own read, bookmark, and archive state is
+            never overwritten.
           </p>
         </div>
       </div>

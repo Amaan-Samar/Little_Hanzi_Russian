@@ -77,6 +77,10 @@
                   <span class="text-amber-500 mt-0.5">•</span>
                   <span>Open History → Backup &amp; sync to keep a backup file on your disk and to share your whole library</span>
                 </li>
+                <li class="flex items-start gap-2">
+                  <span class="text-amber-500 mt-0.5">•</span>
+                  <span>Received a .json article file? Use History → Open shared file, or drag the file onto the app</span>
+                </li>
               </ul>
             </div>
 

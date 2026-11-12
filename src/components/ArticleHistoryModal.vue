@@ -171,13 +171,19 @@
         </div>
 
         <!-- Footer -->
-        <div class="p-4 pt-2 flex items-center justify-between flex-shrink-0 border-t border-gray-100">
-          <button class="backup-link" @click="$emit('open-backup')">
-            <Database :size="15" />
-            Backup &amp; sync
-          </button>
+        <div class="p-4 pt-2 flex items-center justify-between gap-2 flex-shrink-0 border-t border-gray-100">
+          <div class="flex items-center gap-1 min-w-0">
+            <button class="backup-link" @click="$emit('import-file')">
+              <FileUp :size="15" />
+              Open shared file
+            </button>
+            <button class="backup-link" @click="$emit('open-backup')">
+              <Database :size="15" />
+              Backup &amp; sync
+            </button>
+          </div>
           <button
-            class="text-xs font-medium text-slate-400 hover:text-slate-600 transition-colors duration-200 px-4 py-2"
+            class="text-xs font-medium text-slate-400 hover:text-slate-600 transition-colors duration-200 px-4 py-2 flex-shrink-0"
             @click="close"
           >
             Close
@@ -214,6 +220,7 @@ import {
   ArchiveRestore,
   CircleDot,
   Database,
+  FileUp,
 } from 'lucide-vue-next'
 import ConfirmModal from './ConfirmModal.vue'
 
@@ -248,6 +255,7 @@ const emit = defineEmits([
   'share-article',
   'toggle-archive',
   'open-backup',
+  'import-file',
 ])
 
 const activeTab = ref('reading') // reading | unread | liked | shared | all | archived

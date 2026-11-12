@@ -403,6 +403,13 @@ export function useArticleHistory() {
           ...(existing.likedParagraphs || []),
           ...(raw.likedParagraphs || []),
         ])
+        // A Russian-only share can be completed later by a full share.
+        if (
+          String(raw.englishContent || '').trim() &&
+          !String(existing.englishContent || '').trim()
+        ) {
+          existing.englishContent = raw.englishContent
+        }
         if (!existing.sharedBy) {
           existing.sharedBy = raw.sharedBy || sharedByName || 'A friend'
           existing.sharedAt = Number(raw.sharedAt) || Date.now()
