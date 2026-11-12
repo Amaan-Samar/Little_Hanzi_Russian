@@ -1,4 +1,4 @@
-/* Global reset + icy aurora background */
+/* Global reset + clean icy backdrop */
 * {
   margin: 0;
   padding: 0;
@@ -20,12 +20,15 @@ body {
   position: relative;
   color: var(--text);
 
-  /* A cold, Russian-winter sky: soft ice blue with a pale aurora glow. */
-  background:
-    radial-gradient(circle at 12% 2%, rgba(125, 211, 252, 0.4), transparent 44%),
-    radial-gradient(circle at 88% 6%, rgba(56, 189, 248, 0.2), transparent 40%),
-    radial-gradient(circle at 50% 100%, rgba(224, 242, 254, 0.9), transparent 64%),
-    linear-gradient(155deg, #f8fdff 0%, #eaf7ff 42%, #dcefff 100%);
+  /*
+   * A quiet, cold backdrop. Almost neutral, with just enough blue
+   * glow near the top to keep the ice identity without tinting the
+   * white reading surfaces.
+   */
+  background-color: var(--bg-main);
+  background-image:
+    radial-gradient(1100px 520px at 50% -220px, rgba(148, 204, 240, 0.22), transparent 70%),
+    linear-gradient(180deg, #f7fafc 0%, #f1f5f9 100%);
   background-attachment: fixed;
 }
 

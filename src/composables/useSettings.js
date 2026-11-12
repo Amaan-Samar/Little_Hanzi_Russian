@@ -35,16 +35,18 @@ export function useSettings() {
           ? 'ru-en'
           : 'ru-en'
 
+    const fontSize = parsed.fontSize ?? 18
+
     return {
-      fontSize: parsed.fontSize ?? 18,
+      fontSize,
       selectedFont: RUSSIAN_FONTS.includes(parsed.selectedFont) ? parsed.selectedFont : 'Inter',
       showRomanization: parsed.showRomanization ?? parsed.showPinyin ?? true,
       showRussian: parsed.showRussian ?? parsed.showKorean ?? parsed.showChinese ?? true,
       showEnglish: parsed.showEnglish ?? true,
       displayOrder,
       interleaveLines: parsed.interleaveLines ?? false,
-      romanizationFontSize: parsed.romanizationFontSize ?? 12,
-      englishFontSize: parsed.englishFontSize ?? 14,
+      romanizationFontSize: Math.min(parsed.romanizationFontSize ?? 12, fontSize),
+      englishFontSize: Math.min(parsed.englishFontSize ?? 14, fontSize),
     }
   }
 

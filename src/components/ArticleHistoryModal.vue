@@ -2,11 +2,11 @@
   <Teleport to="body">
     <div
       v-if="isOpen"
-      class="fixed inset-0 z-[2000] flex items-center justify-center bg-slate-900/10 backdrop-blur-md animate-fadeIn"
+      class="fixed inset-0 z-[2000] flex items-center justify-center bg-slate-900/25 backdrop-blur-sm animate-fadeIn"
       @click="handleOverlayClick"
     >
       <div
-        class="history-modal bg-white/85 backdrop-blur-xl rounded-2xl w-[85%] max-w-[620px] max-h-[82vh] flex flex-col shadow-2xl border border-white/60 animate-slideUp"
+        class="history-modal bg-white rounded-2xl w-[85%] max-w-[620px] max-h-[82vh] flex flex-col shadow-xl border border-gray-200 animate-slideUp"
         :class="{ 'w-[95%] max-h-[88vh]': isMobile }"
         @click.stop
       >
@@ -19,7 +19,7 @@
         </button>
 
         <!-- Tabs -->
-        <div class="flex gap-1.5 px-5 pt-5 pb-3 border-b border-sky-100/70 flex-shrink-0">
+        <div class="flex gap-1.5 px-5 pt-5 pb-3 border-b border-gray-200 flex-shrink-0">
           <button
             class="history-tab"
             :class="{ 'is-active': activeTab === 'reading' }"
@@ -41,7 +41,7 @@
         </div>
 
         <!-- Body -->
-        <div class="flex-1 overflow-y-auto p-5 pt-4 scrollbar-thin scrollbar-thumb-sky-100 scrollbar-track-transparent">
+        <div class="flex-1 overflow-y-auto p-5 pt-4 scrollbar-thin scrollbar-thumb-gray-200 scrollbar-track-transparent">
           <!-- Empty states -->
           <div v-if="visibleArticles.length === 0" class="text-center py-14 px-4">
             <template v-if="activeTab === 'reading'">
@@ -67,7 +67,7 @@
 
           <div v-else class="space-y-3">
             <!-- Header -->
-            <div class="flex justify-between items-center pb-2 border-b border-sky-100/60">
+            <div class="flex justify-between items-center pb-2 border-b border-gray-200">
               <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
                 {{ visibleArticles.length }}
                 {{ visibleArticles.length === 1 ? 'article' : 'articles' }}
@@ -87,8 +87,8 @@
               <div
                 v-for="article in visibleArticles"
                 :key="article.id"
-                class="group relative bg-white/55 rounded-xl border border-sky-100/70 transition-all duration-200 hover:border-sky-300 hover:shadow-md hover:bg-white/85"
-                :class="{ 'border-sky-300 bg-sky-50/60 shadow-sm': isCurrentArticle(article.id) }"
+                class="group relative bg-white rounded-xl border border-gray-200 transition-all duration-200 hover:border-sky-300 hover:shadow-md"
+                :class="{ 'border-sky-300 bg-sky-50/40 shadow-sm': isCurrentArticle(article.id) }"
               >
                 <div class="p-4 pr-12 cursor-pointer" @click="selectArticle(article)">
                   <div class="flex items-start justify-between gap-3">
@@ -118,7 +118,7 @@
                   <div class="mt-2 flex flex-wrap items-center gap-2">
                     <span
                       v-if="hasBookmark(article)"
-                      class="text-[10px] text-sky-700 font-semibold flex items-center gap-1 px-2 py-0.5 rounded-full bg-sky-100/80 border border-sky-200/70"
+                      class="text-[10px] text-sky-700 font-semibold flex items-center gap-1 px-2 py-0.5 rounded-full bg-sky-50 border border-sky-200"
                     >
                       <Bookmark :size="10" fill="currentColor" />
                       Continue at paragraph {{ article.bookmark + 1 }}
@@ -354,12 +354,9 @@ onBeforeUnmount(() => {
 
 .history-modal {
   position: relative;
-  background:
-    linear-gradient(150deg, rgba(255, 255, 255, 0.86) 0%, rgba(238, 248, 255, 0.78) 100%);
-  border: 1px solid rgba(255, 255, 255, 0.8);
-  box-shadow:
-    0 30px 80px rgba(15, 79, 131, 0.18),
-    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-lg);
 }
 
 /* Tabs */
@@ -371,7 +368,7 @@ onBeforeUnmount(() => {
   border-radius: 10px;
   border: 1px solid transparent;
   background: transparent;
-  color: #64748b;
+  color: var(--text-muted);
   font-size: 12px;
   font-weight: 600;
   cursor: pointer;
@@ -379,15 +376,15 @@ onBeforeUnmount(() => {
 }
 
 .history-tab:hover {
-  background: rgba(224, 242, 254, 0.6);
-  color: #0c75b8;
+  background: var(--surface-muted);
+  color: var(--text);
 }
 
 .history-tab.is-active {
-  background: linear-gradient(135deg, rgba(224, 242, 254, 0.95), rgba(240, 249, 255, 0.9));
-  border-color: rgba(125, 211, 252, 0.7);
-  color: #0b6aa5;
-  box-shadow: 0 6px 16px rgba(58, 166, 240, 0.1);
+  background: var(--p-50);
+  border-color: var(--p-200);
+  color: var(--p-700);
+  box-shadow: var(--shadow-sm);
 }
 
 .tab-count {
@@ -405,7 +402,7 @@ onBeforeUnmount(() => {
 }
 
 .history-tab.is-active .tab-count {
-  background: rgba(58, 166, 240, 0.15);
+  background: rgba(43, 143, 216, 0.15);
 }
 
 /* Line clamping for titles */
@@ -426,12 +423,12 @@ onBeforeUnmount(() => {
 }
 
 .scrollbar-thin::-webkit-scrollbar-thumb {
-  background: rgba(58, 166, 240, 0.22);
+  background: rgba(100, 116, 139, 0.24);
   border-radius: 20px;
 }
 
 .scrollbar-thin::-webkit-scrollbar-thumb:hover {
-  background: rgba(58, 166, 240, 0.35);
+  background: rgba(100, 116, 139, 0.4);
 }
 
 .scrollbar-thin {
@@ -462,6 +459,6 @@ onBeforeUnmount(() => {
 
 /* Floating close button hover */
 .absolute.-top-3.-right-3 {
-  box-shadow: 0 4px 12px rgba(15, 79, 131, 0.1);
+  box-shadow: var(--shadow-md);
 }
 </style>

@@ -30,9 +30,9 @@ export default {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(240, 249, 255, 0.62);
-  backdrop-filter: blur(20px) saturate(160%);
-  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  background: rgba(241, 245, 249, 0.72);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -52,10 +52,10 @@ export default {
 .loading-container {
   text-align: center;
   padding: 26px 34px;
-  border-radius: 20px;
-  background: rgba(255, 255, 255, 0.7);
-  border: 1px solid rgba(255, 255, 255, 0.8);
-  box-shadow: 0 24px 60px rgba(15, 79, 131, 0.14);
+  border-radius: 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-lg);
 }
 
 .loading-spinner {

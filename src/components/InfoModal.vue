@@ -1,11 +1,11 @@
 <!-- components/InfoModal.vue -->
 <template>
   <Teleport to="body">
-    <div v-if="isOpen" class="fixed inset-0 z-[2000] flex items-center justify-center bg-black/5 backdrop-blur-md animate-fadeIn" @click="close">
-      <div class="relative bg-white/85 backdrop-blur-xl rounded-2xl w-[90%] max-w-[600px] max-h-[90vh] flex flex-col animate-slideUp border border-white/50 shadow-2xl" @click.stop>
+    <div v-if="isOpen" class="fixed inset-0 z-[2000] flex items-center justify-center bg-slate-900/25 backdrop-blur-sm animate-fadeIn" @click="close">
+      <div class="relative bg-white rounded-2xl w-[90%] max-w-[600px] max-h-[90vh] flex flex-col animate-slideUp border border-gray-200 shadow-xl" @click.stop>
 
         <!-- Close Button -->
-        <button class="absolute -top-2.5 -right-2.5 w-8 h-8 rounded-full bg-white border border-black/5 cursor-pointer flex items-center justify-center transition-all duration-200 hover:scale-110 hover:bg-gray-50 hover:border-black/10 text-gray-400 hover:text-gray-600 shadow-md hover:shadow-lg z-10" @click="close">
+        <button class="absolute -top-2.5 -right-2.5 w-8 h-8 rounded-full bg-white border border-gray-200 cursor-pointer flex items-center justify-center transition-all duration-200 hover:scale-110 hover:bg-gray-50 hover:border-gray-300 text-gray-400 hover:text-gray-600 shadow-md hover:shadow-lg z-10" @click="close">
           <X :size="16" />
         </button>
 
@@ -78,7 +78,7 @@
                   :href="resource.url"
                   target="_blank"
                   rel="noopener noreferrer"
-                  class="group block p-4 bg-white border border-black/5 rounded-xl hover:border-sky-200 hover:shadow-md transition-all duration-200 hover:-translate-y-0.5"
+                  class="group block p-4 bg-white border border-gray-200 rounded-xl hover:border-sky-300 hover:shadow-md transition-all duration-200 hover:-translate-y-0.5"
                 >
                   <div class="flex items-start gap-3">
                     <div class="flex-shrink-0 w-10 h-10 rounded-lg bg-sky-50 flex items-center justify-center group-hover:bg-sky-100 transition-colors duration-200">
@@ -98,7 +98,7 @@
             </div>
 
             <!-- Author appreciation card -->
-            <div class="rounded-xl p-4 border border-sky-100/60 bg-gradient-to-br from-sky-50/60 via-white to-amber-50/40">
+            <div class="rounded-xl p-4 border border-gray-200 bg-gray-50">
               <div class="flex items-start gap-3">
                 <img
                   :src="author.avatarUrl"
@@ -167,7 +167,7 @@
                 :href="app.url"
                 target="_blank"
                 rel="noopener noreferrer"
-                class="group relative flex items-center gap-3 p-4 bg-white border border-black/5 rounded-xl hover:border-sky-200 hover:shadow-md transition-all duration-200 hover:-translate-y-0.5"
+                class="group relative flex items-center gap-3 p-4 bg-white border border-gray-200 rounded-xl hover:border-sky-300 hover:shadow-md transition-all duration-200 hover:-translate-y-0.5"
                 :class="{ 'ring-1 ring-sky-200 bg-sky-50/40': app.isCurrent }"
               >
                 <span

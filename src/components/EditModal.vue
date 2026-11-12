@@ -1,15 +1,15 @@
 <template>
   <Teleport to="body">
-    <div v-if="isOpen" class="fixed inset-0 z-[3000] flex items-center justify-center bg-black/5 backdrop-blur-md animate-fadeIn" @click="handleOverlayClick">
-      <div class="relative bg-white/85 backdrop-blur-xl rounded-2xl w-[90%] max-w-[700px] h-[80vh] max-h-[650px] flex flex-col animate-slideUp border border-white/50 shadow-2xl" :class="{ 'w-[95%] h-[85vh] max-h-none rounded-xl': isMobile }" @click.stop>
+    <div v-if="isOpen" class="fixed inset-0 z-[3000] flex items-center justify-center bg-slate-900/25 backdrop-blur-sm animate-fadeIn" @click="handleOverlayClick">
+      <div class="relative bg-white rounded-2xl w-[90%] max-w-[700px] h-[80vh] max-h-[650px] flex flex-col animate-slideUp border border-gray-200 shadow-xl" :class="{ 'w-[95%] h-[85vh] max-h-none rounded-xl': isMobile }" @click.stop>
         
         <!-- Floating Close Button -->
-        <button class="absolute -top-2.5 -right-2.5 w-8 h-8 rounded-full bg-white border border-black/5 cursor-pointer flex items-center justify-center transition-all duration-200 hover:scale-110 hover:bg-gray-50 hover:border-black/10 text-gray-400 hover:text-gray-600 shadow-md hover:shadow-lg z-10" @click="close">
+        <button class="absolute -top-2.5 -right-2.5 w-8 h-8 rounded-full bg-white border border-gray-200 cursor-pointer flex items-center justify-center transition-all duration-200 hover:scale-110 hover:bg-gray-50 hover:border-gray-300 text-gray-400 hover:text-gray-600 shadow-md hover:shadow-lg z-10" @click="close">
           <X :size="16" />
         </button>
 
         <!-- Header -->
-        <div class="flex-shrink-0 px-6 pt-6 pb-4 border-b border-gray-100/50">
+        <div class="flex-shrink-0 px-6 pt-6 pb-4 border-b border-gray-200">
           <h3 class="m-0 text-base font-semibold text-gray-800">Edit {{ title }}</h3>
         </div>
 
@@ -19,17 +19,17 @@
             ref="textareaRef"
             v-model="editText"
             :placeholder="`Edit ${title} text...`"
-            class="w-full h-full min-h-[200px] p-4 border border-gray-200/60 rounded-xl font-inherit leading-relaxed resize-none outline-none transition-all duration-200 bg-white/60 text-gray-700 focus:border-sky-400 focus:bg-white focus:shadow-sky-100/20 placeholder:text-gray-400"
+            class="w-full h-full min-h-[200px] p-4 border border-gray-200 rounded-xl font-inherit leading-relaxed resize-none outline-none transition-all duration-200 bg-gray-50 text-gray-700 focus:border-sky-400 focus:bg-white placeholder:text-gray-400"
             :style="{ fontSize: `${fontSize}px`, fontFamily: fontFamily }"
           ></textarea>
         </div>
 
         <!-- Footer -->
-        <div class="flex-shrink-0 flex justify-end gap-3 px-6 py-4 border-t border-gray-100/50" :class="{ 'flex-col-reverse': isMobile }">
-          <button class="px-6 py-2.5 rounded-xl font-medium cursor-pointer transition-all duration-200 text-sm bg-white/60 border border-gray-200/60 text-gray-500 hover:bg-gray-50 hover:border-gray-300" :class="{ 'w-full justify-center': isMobile }" @click="close">
+        <div class="flex-shrink-0 flex justify-end gap-3 px-6 py-4 border-t border-gray-200" :class="{ 'flex-col-reverse': isMobile }">
+          <button class="px-6 py-2.5 rounded-xl font-medium cursor-pointer transition-all duration-200 text-sm bg-white border border-gray-200 text-gray-500 hover:bg-gray-50 hover:border-gray-300" :class="{ 'w-full justify-center': isMobile }" @click="close">
             Cancel
           </button>
-          <button class="px-6 py-2.5 rounded-xl font-medium cursor-pointer transition-all duration-200 text-sm bg-gradient-to-r from-sky-500 to-blue-600 text-white border-none hover:-translate-y-0.5 hover:shadow-sky-500/25" :class="{ 'w-full justify-center': isMobile }" @click="save">
+          <button class="px-6 py-2.5 rounded-xl font-medium cursor-pointer transition-all duration-200 text-sm text-white border-none hover:-translate-y-0.5" style="background: var(--primary); box-shadow: var(--shadow-primary)" :class="{ 'w-full justify-center': isMobile }" @click="save">
             Save Changes
           </button>
         </div>
@@ -176,7 +176,7 @@ textarea {
 
 /* Focus ring for textarea */
 textarea:focus {
-  box-shadow: 0 0 0 4px rgba(58, 166, 240, 0.1);
+  box-shadow: 0 0 0 3px rgba(43, 143, 216, 0.14);
 }
 
 /* Mobile responsive overrides */
@@ -205,6 +205,6 @@ button {
 
 /* Gradient button hover shadow */
 .hover\:shadow-sky-500\/25:hover {
-  box-shadow: 0 8px 24px rgba(58, 166, 240, 0.25);
+  box-shadow: var(--shadow-primary-hover);
 }
 </style>

@@ -14,23 +14,24 @@ body {
 }
 
 /* ============================================================
-   Ice / Russian-inspired palette
+   Clean ice-blue palette
    The `--p-*` names are kept from the template so existing
-   components continue to work, but they now hold icy blues.
+   components continue to work. Surfaces are intentionally
+   neutral; blue is reserved for accents and interactive states.
    ============================================================ */
 
 :root {
   /* ===== Ice Blue Family ===== */
-  --p-50: #f2f9ff;
-  --p-100: #e3f2ff;
-  --p-200: #c9e7ff;
-  --p-300: #a5d7ff;
-  --p-400: #6fc2ff;
-  --p-500: #37a3ee;
-  --p-600: #1d84ce;
-  --p-700: #1567a5;
-  --p-800: #0f4f80;
-  --p-900: #0a3a5f;
+  --p-50: #f3f9fe;
+  --p-100: #e6f3fc;
+  --p-200: #cbe6f8;
+  --p-300: #a1d2f2;
+  --p-400: #66b5e9;
+  --p-500: #2b8fd8;
+  --p-600: #1b73b5;
+  --p-700: #155d94;
+  --p-800: #124b77;
+  --p-900: #103d60;
 
   /* ===== Frost / Teal Family (secondary) ===== */
   --g-50: #ecfeff;
@@ -65,8 +66,8 @@ body {
   --gray-500: #64748b;
   --gray-600: #475569;
   --gray-700: #334155;
-  --gray-800: #1e293b;
-  --gray-900: #0f172a;
+  --gray-800: #1f2937;
+  --gray-900: #111827;
 
   /* ===== White ===== */
   --white: #ffffff;
@@ -92,70 +93,73 @@ body {
   --danger-bg: var(--r-100);
 
   /* ===== Text Colors ===== */
-  --text: #0b2540;
-  --text-secondary: #274b63;
-  --text-muted: #3f6f92;
-  --text-light: var(--gray-500);
+  --text: #1f2937;
+  --text-secondary: #4b5563;
+  --text-muted: #6b7280;
+  --text-light: #94a3b8;
   --text-white: var(--white);
 
-  /* ===== Backgrounds ===== */
-  --bg-main: var(--p-50);
-  --bg-card: rgba(255, 255, 255, 0.68);
-  --bg-input: rgba(255, 255, 255, 0.72);
+  /* ===== Backgrounds & neutral surfaces ===== */
+  --bg-main: #f4f7fa;
+  --bg-card: #ffffff;
+  --bg-input: #ffffff;
   --bg-white: var(--white);
+  --surface: #ffffff;
+  --surface-soft: #f8fafc;
+  --surface-muted: #f1f5f9;
+  --surface-tint: #f4f9fe;
 
-  /* ===== Liquid-glass tokens ===== */
-  --glass-bg: rgba(255, 255, 255, 0.64);
-  --glass-bg-strong: rgba(255, 255, 255, 0.82);
-  --glass-border: rgba(255, 255, 255, 0.72);
-  --glass-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.85);
-  --glass-blur: blur(22px) saturate(165%);
-  --glass-shadow: 0 16px 44px rgba(37, 137, 201, 0.1);
+  /* ===== Borders ===== */
+  --border: #e2e8f0;
+  --border-strong: #cbd5e1;
+  --border-accent: #b9dcf5;
+
+  /* ===== Liquid-glass tokens (used sparingly) ===== */
+  --glass-bg: rgba(255, 255, 255, 0.9);
+  --glass-bg-strong: rgba(255, 255, 255, 0.96);
+  --glass-border: rgba(226, 232, 240, 0.9);
+  --glass-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  --glass-blur: blur(14px) saturate(120%);
+  --glass-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
 
   /* ===== Gradients ===== */
-  --gradient-main: linear-gradient(
-    155deg,
-    #f7fcff 0%,
-    #eaf7ff 35%,
-    #ddefff 65%,
-    #f5fbff 100%
-  );
-  --gradient-logo: linear-gradient(135deg, #0f4f80 0%, #2c9be6 55%, #7dd3fc 100%);
+  --gradient-main: linear-gradient(180deg, #f8fbfe 0%, #f2f6fa 100%);
+  --gradient-logo: linear-gradient(135deg, var(--p-500) 0%, var(--p-600) 100%);
   --gradient-btn: linear-gradient(135deg, var(--p-500) 0%, var(--p-600) 100%);
   --gradient-danger: linear-gradient(135deg, var(--r-500) 0%, var(--r-600) 100%);
 
   /* ===== Shadows ===== */
-  --shadow-sm: 0 1px 2px 0 rgba(15, 79, 131, 0.05);
-  --shadow-md: 0 4px 6px -1px rgba(15, 79, 131, 0.09);
-  --shadow-lg: 0 18px 50px rgba(15, 79, 131, 0.14);
-  --shadow-primary: 0 8px 26px rgba(55, 163, 238, 0.08);
-  --shadow-primary-hover: 0 14px 36px rgba(55, 163, 238, 0.14);
-  --shadow-danger: 0 4px 16px rgba(239, 68, 68, 0.3);
+  --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.04);
+  --shadow-md: 0 4px 12px rgba(15, 23, 42, 0.07);
+  --shadow-lg: 0 20px 48px rgba(15, 23, 42, 0.14);
+  --shadow-primary: 0 4px 14px rgba(43, 143, 216, 0.16);
+  --shadow-primary-hover: 0 8px 22px rgba(43, 143, 216, 0.22);
+  --shadow-danger: 0 4px 16px rgba(239, 68, 68, 0.24);
 
-  /* ===== Borders ===== */
-  --border-primary-light: 1px solid rgba(55, 163, 238, 0.1);
-  --border-primary: 1px solid rgba(55, 163, 238, 0.18);
-  --border-primary-strong: 2px solid rgba(55, 163, 238, 0.18);
+  /* ===== Borders (legacy tokens) ===== */
+  --border-primary-light: 1px solid var(--border);
+  --border-primary: 1px solid var(--border-accent);
+  --border-primary-strong: 2px solid var(--p-200);
   --border-secondary: 1px solid rgba(6, 182, 212, 0.1);
   --border-secondary-strong: 1px solid rgba(6, 182, 212, 0.24);
 
   /* ===== Border Radius ===== */
-  --radius-sm: 9px;
-  --radius-md: 13px;
-  --radius-lg: 18px;
-  --radius-xl: 22px;
-  --radius-2xl: 26px;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-2xl: 20px;
 }
 
 ::selection {
-  background: rgba(125, 211, 252, 0.5);
-  color: #083a5f;
+  background: rgba(43, 143, 216, 0.2);
+  color: #103d60;
 }
 
-/* Thin icy scrollbars */
+/* Thin scrollbars */
 * {
   scrollbar-width: thin;
-  scrollbar-color: rgba(55, 163, 238, 0.32) transparent;
+  scrollbar-color: rgba(100, 116, 139, 0.28) transparent;
 }
 
 ::-webkit-scrollbar {
@@ -168,15 +172,15 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(55, 163, 238, 0.28);
+  background: rgba(100, 116, 139, 0.24);
   border-radius: 999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(55, 163, 238, 0.45);
+  background: rgba(100, 116, 139, 0.4);
 }
 
-/* Frosted glass helper — available to any component that wants it */
+/* Frosted surface helper — used only where a little depth helps. */
 .glass-surface {
   background: var(--glass-bg);
   backdrop-filter: var(--glass-blur);

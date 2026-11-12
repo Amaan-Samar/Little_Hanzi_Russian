@@ -1,18 +1,18 @@
 <template>
   <Teleport to="body">
-    <div v-if="isOpen" class="fixed inset-0 z-[2000] flex items-center justify-center bg-black/5 backdrop-blur-md animate-fadeIn" @click="handleOverlayClick">
-      <div class="relative bg-white/85 backdrop-blur-xl rounded-2xl w-[90%] max-w-[520px] max-h-[90vh] flex flex-col animate-slideUp border border-white/50 shadow-2xl" :class="{ 'w-[92%] max-h-[90vh] rounded-xl': isMobile }" @click.stop>
+    <div v-if="isOpen" class="fixed inset-0 z-[2000] flex items-center justify-center bg-slate-900/25 backdrop-blur-sm animate-fadeIn" @click="handleOverlayClick">
+      <div class="relative bg-white rounded-2xl w-[90%] max-w-[520px] max-h-[90vh] flex flex-col animate-slideUp border border-gray-200 shadow-xl" :class="{ 'w-[92%] max-h-[90vh] rounded-xl': isMobile }" @click.stop>
         
         <!-- Floating Close Button -->
-        <button class="absolute -top-2.5 -right-2.5 w-8 h-8 rounded-full bg-white border border-black/5 cursor-pointer flex items-center justify-center transition-all duration-200 hover:scale-110 hover:bg-gray-50 hover:border-black/10 text-gray-400 hover:text-gray-600 shadow-md hover:shadow-lg z-10" @click="close">
+        <button class="absolute -top-2.5 -right-2.5 w-8 h-8 rounded-full bg-white border border-gray-200 cursor-pointer flex items-center justify-center transition-all duration-200 hover:scale-110 hover:bg-gray-50 hover:border-gray-300 text-gray-400 hover:text-gray-600 shadow-md hover:shadow-lg z-10" @click="close">
           <X :size="16" />
         </button>
 
         <div class="flex-1 overflow-y-auto p-6 pb-8 scrollbar-thin scrollbar-thumb-gray-200/50 scrollbar-track-transparent">
           <!-- Live Preview Section -->
-          <div class="mb-6 bg-gradient-to-br from-sky-50/50 to-blue-50/50 rounded-xl p-4 border border-sky-100/50">
-            <label class="block text-[11px] font-semibold text-sky-600 uppercase tracking-wider mb-3">Live Preview</label>
-            <div class="bg-white/80 backdrop-blur-sm rounded-lg p-4 border border-white/50">
+          <div class="mb-6 bg-gray-50 rounded-xl p-4 border border-gray-200">
+            <label class="block text-[11px] font-semibold text-gray-500 uppercase tracking-wider mb-3">Live Preview</label>
+            <div class="bg-white rounded-lg p-4 border border-gray-200">
               <!-- Russian with Romanization Preview -->
               <div class="mb-3" :style="{ fontFamily: getSelectedFontFamily() }">
                 <div class="flex flex-wrap items-start gap-x-2.5 gap-y-1">
@@ -60,7 +60,7 @@
             <label class="block text-[11px] font-semibold text-gray-400 uppercase tracking-wider mb-3">Russian Font Size</label>
             <div class="flex items-center gap-3.5 mb-3.5">
               <button 
-                class="w-9 h-9 rounded-full border border-black/5 bg-white cursor-pointer flex items-center justify-center transition-all duration-200 text-gray-500 hover:bg-gray-50 hover:border-black/10 hover:scale-105 active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed"
+                class="w-9 h-9 rounded-full border border-gray-200 bg-white cursor-pointer flex items-center justify-center transition-all duration-200 text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:scale-105 active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed"
                 @click="decreaseFontSize"
                 :disabled="localSettings.fontSize <= 12"
               >
@@ -68,7 +68,7 @@
               </button>
               <span class="text-lg font-semibold text-gray-800 min-w-[48px] text-center">{{ localSettings.fontSize }}</span>
               <button 
-                class="w-9 h-9 rounded-full border border-black/5 bg-white cursor-pointer flex items-center justify-center transition-all duration-200 text-gray-500 hover:bg-gray-50 hover:border-black/10 hover:scale-105 active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed"
+                class="w-9 h-9 rounded-full border border-gray-200 bg-white cursor-pointer flex items-center justify-center transition-all duration-200 text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:scale-105 active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed"
                 @click="increaseFontSize"
                 :disabled="localSettings.fontSize >= 32"
               >
@@ -79,8 +79,8 @@
               <button
                 v-for="size in fontSizePresets"
                 :key="size"
-                class="px-2.5 py-1 border border-black/5 rounded-md bg-white cursor-pointer text-xs font-medium transition-all duration-200 text-gray-500 hover:bg-gray-50 hover:border-black/10"
-                :class="{ 'bg-gray-100 border-gray-300 text-gray-700 shadow-sm': localSettings.fontSize === size }"
+                class="px-2.5 py-1 border border-gray-200 rounded-md bg-white cursor-pointer text-xs font-medium transition-all duration-200 text-gray-500 hover:bg-gray-50 hover:border-gray-300"
+                :class="{ 'bg-sky-50 border-sky-200 text-sky-700 shadow-sm': localSettings.fontSize === size }"
                 @click="setFontSize(size)"
               >
                 {{ size }}
@@ -93,7 +93,7 @@
             <label class="block text-[11px] font-semibold text-gray-400 uppercase tracking-wider mb-3">Romanization Size</label>
             <div class="flex items-center gap-3.5 mb-3.5">
               <button 
-                class="w-9 h-9 rounded-full border border-black/5 bg-white cursor-pointer flex items-center justify-center transition-all duration-200 text-gray-500 hover:bg-gray-50 hover:border-black/10 hover:scale-105 active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed"
+                class="w-9 h-9 rounded-full border border-gray-200 bg-white cursor-pointer flex items-center justify-center transition-all duration-200 text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:scale-105 active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed"
                 @click="decreaseRomanizationSize"
                 :disabled="localSettings.romanizationFontSize <= 4"
               >
@@ -101,7 +101,7 @@
               </button>
               <span class="text-lg font-semibold text-gray-800 min-w-[48px] text-center">{{ localSettings.romanizationFontSize }}</span>
               <button 
-                class="w-9 h-9 rounded-full border border-black/5 bg-white cursor-pointer flex items-center justify-center transition-all duration-200 text-gray-500 hover:bg-gray-50 hover:border-black/10 hover:scale-105 active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed"
+                class="w-9 h-9 rounded-full border border-gray-200 bg-white cursor-pointer flex items-center justify-center transition-all duration-200 text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:scale-105 active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed"
                 @click="increaseRomanizationSize"
                 :disabled="localSettings.romanizationFontSize >= localSettings.fontSize"
               >
@@ -112,8 +112,9 @@
               <button
                 v-for="size in romanizationPresets"
                 :key="size"
-                class="px-2.5 py-1 border border-black/5 rounded-md bg-white cursor-pointer text-xs font-medium transition-all duration-200 text-gray-500 hover:bg-gray-50 hover:border-black/10"
-                :class="{ 'bg-gray-100 border-gray-300 text-gray-700 shadow-sm': localSettings.romanizationFontSize === size }"
+                class="px-2.5 py-1 border border-gray-200 rounded-md bg-white cursor-pointer text-xs font-medium transition-all duration-200 text-gray-500 hover:bg-gray-50 hover:border-gray-300 disabled:opacity-30 disabled:cursor-not-allowed"
+                :class="{ 'bg-sky-50 border-sky-200 text-sky-700 shadow-sm': localSettings.romanizationFontSize === size }"
+                :disabled="size > localSettings.fontSize"
                 @click="setRomanizationSize(size)"
               >
                 {{ size }}
@@ -127,7 +128,7 @@
             <label class="block text-[11px] font-semibold text-gray-400 uppercase tracking-wider mb-3">English Size</label>
             <div class="flex items-center gap-3.5 mb-3.5">
               <button 
-                class="w-9 h-9 rounded-full border border-black/5 bg-white cursor-pointer flex items-center justify-center transition-all duration-200 text-gray-500 hover:bg-gray-50 hover:border-black/10 hover:scale-105 active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed"
+                class="w-9 h-9 rounded-full border border-gray-200 bg-white cursor-pointer flex items-center justify-center transition-all duration-200 text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:scale-105 active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed"
                 @click="decreaseEnglishSize"
                 :disabled="localSettings.englishFontSize <= 4"
               >
@@ -135,7 +136,7 @@
               </button>
               <span class="text-lg font-semibold text-gray-800 min-w-[48px] text-center">{{ localSettings.englishFontSize }}</span>
               <button 
-                class="w-9 h-9 rounded-full border border-black/5 bg-white cursor-pointer flex items-center justify-center transition-all duration-200 text-gray-500 hover:bg-gray-50 hover:border-black/10 hover:scale-105 active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed"
+                class="w-9 h-9 rounded-full border border-gray-200 bg-white cursor-pointer flex items-center justify-center transition-all duration-200 text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:scale-105 active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed"
                 @click="increaseEnglishSize"
                 :disabled="localSettings.englishFontSize >= localSettings.fontSize"
               >
@@ -146,8 +147,9 @@
               <button
                 v-for="size in englishPresets"
                 :key="size"
-                class="px-2.5 py-1 border border-black/5 rounded-md bg-white cursor-pointer text-xs font-medium transition-all duration-200 text-gray-500 hover:bg-gray-50 hover:border-black/10"
-                :class="{ 'bg-gray-100 border-gray-300 text-gray-700 shadow-sm': localSettings.englishFontSize === size }"
+                class="px-2.5 py-1 border border-gray-200 rounded-md bg-white cursor-pointer text-xs font-medium transition-all duration-200 text-gray-500 hover:bg-gray-50 hover:border-gray-300 disabled:opacity-30 disabled:cursor-not-allowed"
+                :class="{ 'bg-sky-50 border-sky-200 text-sky-700 shadow-sm': localSettings.englishFontSize === size }"
+                :disabled="size > localSettings.fontSize"
                 @click="setEnglishSize(size)"
               >
                 {{ size }}
@@ -161,19 +163,19 @@
             <label class="block text-[11px] font-semibold text-gray-400 uppercase tracking-wider mb-3">Font Family</label>
             <div class="relative font-select-wrapper">
               <button 
-                class="w-full px-4 py-3 bg-white border border-black/5 rounded-lg flex justify-between items-center cursor-pointer transition-all duration-200 text-gray-600 text-sm hover:bg-gray-50 hover:border-black/10"
+                class="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg flex justify-between items-center cursor-pointer transition-all duration-200 text-gray-600 text-sm hover:bg-gray-50 hover:border-gray-300"
                 :style="{ fontFamily: getSelectedFontFamily() }"
                 @click="toggleFontDropdown"
               >
                 <span>{{ getSelectedFontLabel() }}</span>
                 <ChevronDown :size="16" class="transition-transform duration-200" :class="{ 'rotate-180': isFontDropdownOpen }" />
               </button>
-              <div v-if="isFontDropdownOpen" class="absolute top-full left-0 right-0 mt-2 bg-white/95 backdrop-blur-xl border border-black/5 rounded-lg max-h-[200px] overflow-y-auto z-10 shadow-lg animate-slideDown">
+              <div v-if="isFontDropdownOpen" class="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-200 rounded-lg max-h-[200px] overflow-y-auto z-10 shadow-lg animate-slideDown">
                 <button
                   v-for="font in fontOptions"
                   :key="font.value"
-                  class="w-full px-4 py-2.5 bg-transparent border-none text-left cursor-pointer transition-all duration-200 text-gray-600 text-sm hover:bg-sky-50"
-                  :class="{ 'bg-sky-50/50 text-sky-700': localSettings.selectedFont === font.value }"
+                  class="w-full px-4 py-2.5 bg-transparent border-none text-left cursor-pointer transition-all duration-200 text-gray-600 text-sm hover:bg-gray-50"
+                  :class="{ 'bg-sky-50 text-sky-700': localSettings.selectedFont === font.value }"
                   :style="{ fontFamily: font.fontFamily }"
                   @click="handleFontChange(font.value)"
                 >
@@ -225,11 +227,11 @@
         </div>
 
         <!-- Footer -->
-        <div class="flex items-center justify-between gap-3 px-6 py-4 border-t border-sky-100/70 flex-shrink-0">
+        <div class="flex items-center justify-between gap-3 px-6 py-4 border-t border-gray-200 flex-shrink-0">
           <span class="text-[11px] text-gray-400">Changes save automatically</span>
           <button
             class="px-5 py-2 rounded-lg text-sm font-semibold text-white cursor-pointer transition-all duration-200 hover:-translate-y-0.5"
-            style="background: linear-gradient(135deg, #37a3ee 0%, #1d84ce 100%); box-shadow: 0 8px 18px rgba(31, 134, 214, 0.22)"
+            style="background: var(--primary); box-shadow: var(--shadow-primary)"
             @click="close"
           >
             Done
@@ -307,10 +309,23 @@ const toggleFontDropdown = () => {
   isFontDropdownOpen.value = !isFontDropdownOpen.value
 }
 
+// Romanization and English text must never render larger than the Russian
+// text. Keep the three controls in sync whenever the main size changes.
+const clampSubSizes = () => {
+  const max = localSettings.value.fontSize
+  if (localSettings.value.romanizationFontSize > max) {
+    localSettings.value.romanizationFontSize = max
+  }
+  if (localSettings.value.englishFontSize > max) {
+    localSettings.value.englishFontSize = max
+  }
+}
+
 // Russian font size controls
 const increaseFontSize = () => {
   if (localSettings.value.fontSize < 32) {
     localSettings.value.fontSize += 2
+    clampSubSizes()
     emitSave()
   }
 }
@@ -318,19 +333,14 @@ const increaseFontSize = () => {
 const decreaseFontSize = () => {
   if (localSettings.value.fontSize > 12) {
     localSettings.value.fontSize -= 2
+    clampSubSizes()
     emitSave()
   }
 }
 
 const setFontSize = (size) => {
   localSettings.value.fontSize = size
-  // Ensure romanization and English don't exceed the new Russian size
-  if (localSettings.value.romanizationFontSize > size) {
-    localSettings.value.romanizationFontSize = size
-  }
-  if (localSettings.value.englishFontSize > size) {
-    localSettings.value.englishFontSize = size
-  }
+  clampSubSizes()
   emitSave()
 }
 
@@ -455,6 +465,7 @@ const handleClickOutside = (e) => {
 watch(() => props.isOpen, (newVal) => {
   if (newVal) {
     localSettings.value = { ...props.settings }
+    clampSubSizes()
     isFontDropdownOpen.value = false
   }
 })
@@ -462,6 +473,7 @@ watch(() => props.isOpen, (newVal) => {
 watch(() => props.settings, (newVal) => {
   if (props.isOpen) {
     localSettings.value = { ...newVal }
+    clampSubSizes()
   }
 }, { deep: true })
 
@@ -546,7 +558,7 @@ onBeforeUnmount(() => {
 /* Custom checkbox and radio styles using accent-color */
 input[type="checkbox"],
 input[type="radio"] {
-  accent-color: #37a3ee;
+  accent-color: var(--primary);
 }
 
 /* Mobile responsive adjustments */

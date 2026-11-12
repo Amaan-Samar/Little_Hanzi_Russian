@@ -97,8 +97,8 @@ onBeforeUnmount(() => {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(58, 166, 240, 0.1);
-  backdrop-filter: blur(22px) saturate(160%);
+  background: rgba(15, 23, 42, 0.25);
+  backdrop-filter: blur(8px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -112,13 +112,12 @@ onBeforeUnmount(() => {
 }
 
 .confirm-modal {
-  background: var(--bg-card);
-  backdrop-filter: blur(30px);
+  background: var(--surface);
   border-radius: var(--radius-2xl);
   width: 90%;
   max-width: 400px;
   animation: slideUp 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  border: 1px solid var(--border);
   box-shadow: var(--shadow-lg);
   overflow: hidden;
 }
@@ -189,13 +188,14 @@ onBeforeUnmount(() => {
 }
 
 .cancel-btn {
-  background: rgba(255, 255, 255, 0.5);
-  border: var(--border-primary);
-  color: var(--text-muted);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
 }
 
 .cancel-btn:hover {
-  background: var(--p-100);
+  background: var(--surface-muted);
+  border-color: var(--border-strong);
   transform: translateY(-1px);
 }
 
