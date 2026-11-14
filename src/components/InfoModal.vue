@@ -183,8 +183,14 @@
                 :href="app.url"
                 target="_blank"
                 rel="noopener noreferrer"
-                class="group relative flex items-center gap-3 p-4 bg-white border border-gray-200 rounded-xl hover:border-sky-300 hover:shadow-md transition-all duration-200 hover:-translate-y-0.5"
+                class="app-link group relative flex items-center gap-3 p-4 bg-white border border-gray-200 rounded-xl hover:border-sky-300 hover:shadow-md transition-all duration-200 hover:-translate-y-0.5"
                 :class="{ 'ring-1 ring-sky-200 bg-sky-50/40': app.isCurrent }"
+                @pointerdown="startLongPress(app, $event)"
+                @pointerup="cancelLongPress"
+                @pointerleave="cancelLongPress"
+                @pointercancel="cancelLongPress"
+                @contextmenu.prevent
+                @click="handleAppClick"
               >
                 <span
                   v-if="app.isCurrent"
@@ -227,6 +233,7 @@
 
             <p class="text-[11px] text-center text-slate-400 mt-6">
               Built with the same philosophy — read real content, don't drill flashcards.
+              Hold any app card to copy its link.
             </p>
           </div>
 
@@ -250,8 +257,9 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue'
+import { ref, watch, onBeforeUnmount } from 'vue'
 import { X } from 'lucide-vue-next'
+import { copyText } from '../utils/clipboard'
 
 const props = defineProps({
   isOpen: {
@@ -260,13 +268,61 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['close'])
+const emit = defineEmits(['close', 'notify'])
 
 const activeTab = ref('learn')   // 'learn' | 'apps'
+
+// ---------- Long-press a similar-app card to copy its link ----------
+const LONG_PRESS_MS = 2000
+let pressTimer = null
+let suppressClick = false
+let suppressTimeout = null
+
+const cancelLongPress = () => {
+  if (pressTimer) {
+    clearTimeout(pressTimer)
+    pressTimer = null
+  }
+}
+
+const startLongPress = (app, event) => {
+  if (event.pointerType === 'mouse' && event.button !== 0) return
+  cancelLongPress()
+
+  pressTimer = setTimeout(async () => {
+    pressTimer = null
+    suppressClick = true
+
+    const copied = await copyText(app.url)
+    emit(
+      'notify',
+      copied ? `${app.name} link copied!` : 'Could not copy that link.',
+      copied ? 'success' : 'error',
+    )
+
+    if (suppressTimeout) clearTimeout(suppressTimeout)
+    suppressTimeout = setTimeout(() => {
+      suppressClick = false
+    }, 700)
+  }, LONG_PRESS_MS)
+}
+
+const handleAppClick = (event) => {
+  if (!suppressClick) return
+  event.preventDefault()
+  event.stopPropagation()
+  suppressClick = false
+}
 
 // Reset to "Learn" tab each time the modal opens
 watch(() => props.isOpen, (open) => {
   if (open) activeTab.value = 'learn'
+  cancelLongPress()
+})
+
+onBeforeUnmount(() => {
+  cancelLongPress()
+  if (suppressTimeout) clearTimeout(suppressTimeout)
 })
 
 // Author info — edit these three fields to match your profile
@@ -441,5 +497,12 @@ const close = () => {
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
+}
+
+.app-link {
+  touch-action: manipulation;
+  -webkit-touch-callout: none;
+  user-select: none;
+  -webkit-user-select: none;
 }
 </style>

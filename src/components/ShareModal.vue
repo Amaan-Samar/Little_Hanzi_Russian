@@ -228,6 +228,7 @@ import {
   downloadJson,
   slugify,
 } from '../utils/sharePayload'
+import { copyText } from '../utils/clipboard'
 
 const props = defineProps({
   isOpen: { type: Boolean, default: false },
@@ -332,22 +333,9 @@ watch([name, () => props.article], () => {
 
 const copyLink = async (url, key) => {
   if (!url) return
-  try {
-    await navigator.clipboard.writeText(url)
-  } catch {
-    try {
-      const input = document.createElement('textarea')
-      input.value = url
-      input.style.position = 'fixed'
-      input.style.opacity = '0'
-      document.body.appendChild(input)
-      input.select()
-      document.execCommand('copy')
-      input.remove()
-    } catch (error) {
-      console.error('Copy failed:', error)
-      return
-    }
+  if (!(await copyText(url))) {
+    console.error('Copy failed:', url)
+    return
   }
 
   copiedKey.value = key

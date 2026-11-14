@@ -2,7 +2,15 @@
   <div class="converter-wrapper" @dragover.prevent @drop.prevent="handleFileDrop">
     <!-- Header with Logo and Settings -->
     <div class="app-header">
-      <div class="logo-section">
+      <div
+        class="logo-section"
+        title="Long-press to copy the app link"
+        @pointerdown="startLogoLongPress"
+        @pointerup="cancelLogoLongPress"
+        @pointerleave="cancelLogoLongPress"
+        @pointercancel="cancelLogoLongPress"
+        @contextmenu.prevent
+      >
         <span class="logo-mark"><Snowflake :size="18" /></span>
         <h1 class="logo">Little Hanzi <span class="logo-lang">Русский</span></h1>
       </div>
@@ -85,7 +93,11 @@
     />
 
     <!-- Info Modal -->
-    <InfoModal :isOpen="isInfoModalOpen" @close="closeInfoModal" />
+    <InfoModal
+      :isOpen="isInfoModalOpen"
+      @close="closeInfoModal"
+      @notify="showToastMessage"
+    />
 
     <div class="main-content">
       <LoadingSpinner :isLoading="isLoading" :text="loadingText" />
@@ -143,7 +155,7 @@
             </button>
           </div>
           <button @click="clearOrPasteText('russian')" class="action-btn">
-            {{ russianText.trim() ? 'Clear' : 'Paste' }}
+            {{ pasteButtonLabel(russianText) }}
           </button>
         </div>
 
@@ -158,6 +170,7 @@
           </div>
           <div class="input-wrapper">
             <textarea
+              ref="englishTextareaRef"
               v-model="englishText"
               placeholder="Paste English translation here..."
               class="text-input w-full english-input"
@@ -172,7 +185,7 @@
             </button>
           </div>
           <button @click="clearOrPasteText('english')" class="action-btn">
-            {{ englishText.trim() ? 'Clear' : 'Paste' }}
+            {{ pasteButtonLabel(englishText) }}
           </button>
           <p class="article-note">Articles “a”, “an” and “the” are removed automatically.</p>
         </div>
@@ -254,13 +267,10 @@
                 fontFamily: getFontFamily,
               }"
               @click="handleParagraphClick(sentenceId)"
-              @dblclick="handleParagraphDoubleClick(sentenceId)"
-              @touchstart.passive="handleTouchStart"
-              @touchmove.passive="handleTouchMove"
-              @touchend.passive="handleTouchEnd(sentenceId)"
             >
               <div class="paragraph-actions">
                 <button
+                  v-if="focusedParagraph === sentenceId"
                   class="paragraph-like-btn"
                   :class="{ 'is-liked': isLikedParagraph(sentenceId) }"
                   @click.stop="toggleLike(sentenceId)"
@@ -440,6 +450,7 @@ import {
   stripEnglishArticles,
   getParagraphRanges,
 } from '../utils/textProcessing'
+import { copyText, isFirefox, appUrl } from '../utils/clipboard'
 
 const {
   fontSize,
@@ -497,6 +508,12 @@ const {
 const russianText = ref('')
 const englishText = ref('')
 const russianTextareaRef = ref(null)
+const englishTextareaRef = ref(null)
+const firefoxBrowser = isFirefox()
+const pasteButtonLabel = (text) => {
+  if (text.trim()) return 'Clear'
+  return firefoxBrowser ? 'Paste manually' : 'Paste'
+}
 
 const showConfirmModal = ref(false)
 const isSettingsModalOpen = ref(false)
@@ -543,14 +560,43 @@ const fonts = {
 const getFontFamily = computed(() => fonts[selectedFont.value] || fonts.Inter)
 
 // ---------- Toast ----------
-const showToastMessage = (message, type = 'success') => {
+const showToastMessage = (message, type = 'success', duration = 3200) => {
   toastMessage.value = message
   toastType.value = type
   showSaveToast.value = true
   if (toastTimeout) clearTimeout(toastTimeout)
   toastTimeout = setTimeout(() => {
     showSaveToast.value = false
-  }, 3200)
+  }, duration)
+}
+
+// ---------- Header long-press: copy the app link ----------
+const LONG_PRESS_MS = 2000
+let logoPressTimer = null
+
+const cancelLogoLongPress = () => {
+  if (logoPressTimer) {
+    clearTimeout(logoPressTimer)
+    logoPressTimer = null
+  }
+}
+
+const startLogoLongPress = (event) => {
+  if (event.pointerType === 'mouse' && event.button !== 0) return
+  cancelLogoLongPress()
+
+  const url = appUrl()
+  logoPressTimer = setTimeout(async () => {
+    logoPressTimer = null
+    const copied = await copyText(url)
+    showToastMessage(
+      copied
+        ? 'App link copied. Share Little Hanzi with a friend!'
+        : `Could not copy automatically. App link: ${url}`,
+      copied ? 'success' : 'error',
+      copied ? 4200 : 9000,
+    )
+  }, LONG_PRESS_MS)
 }
 
 // ---------- Parsing ----------
@@ -857,8 +903,28 @@ const toggleLike = (paragraphIndex) => {
 }
 
 // ---------- Paragraph focus & menu ----------
+// One click focuses a paragraph. A quick second click on the same paragraph
+// bookmarks it. Handling both gestures here avoids relying on the browser's
+// native dblclick, which loses the second tap when focus re-renders the
+// paragraph actions.
+const DOUBLE_ACTIVATION_MS = 500
+let lastParagraphTap = { index: null, time: 0 }
+
 const handleParagraphClick = (index) => {
+  const now = Date.now()
+  const isSecondTap =
+    lastParagraphTap.index === index &&
+    now - lastParagraphTap.time <= DOUBLE_ACTIVATION_MS
+
   focusedParagraph.value = index
+
+  if (isSecondTap) {
+    lastParagraphTap = { index: null, time: 0 }
+    toggleBookmark(index)
+    return
+  }
+
+  lastParagraphTap = { index, time: now }
 }
 
 const closeParagraphMenu = () => {
@@ -900,6 +966,7 @@ const handleDocumentClick = (e) => {
   const inside = e.target.closest('.line-container, .paragraph-menu')
   if (!inside) {
     focusedParagraph.value = null
+    lastParagraphTap = { index: null, time: 0 }
     closeParagraphMenu()
   }
 }
@@ -908,34 +975,7 @@ const handleKeydown = (e) => {
   if (e.key === 'Escape') {
     closeParagraphMenu()
     focusedParagraph.value = null
-  }
-}
-
-// ---------- Double-click / double-tap ----------
-const handleParagraphDoubleClick = (index) => {
-  toggleBookmark(index)
-}
-
-let touchMoved = false
-let lastTapIndex = null
-let lastTapTime = 0
-const handleTouchStart = () => {
-  touchMoved = false
-}
-const handleTouchMove = () => {
-  touchMoved = true
-}
-const handleTouchEnd = (index) => {
-  if (touchMoved) return
-  const now = Date.now()
-  if (lastTapIndex === index && now - lastTapTime < 300) {
-    toggleBookmark(index)
-    lastTapIndex = null
-    lastTapTime = 0
-  } else {
-    lastTapIndex = index
-    lastTapTime = now
-    focusedParagraph.value = index
+    lastParagraphTap = { index: null, time: 0 }
   }
 }
 
@@ -978,11 +1018,9 @@ const copyParagraph = async (index) => {
   const block = comparisonData.value[index]
   if (!block?.raw) return
 
-  try {
-    await navigator.clipboard.writeText(block.raw)
+  if (await copyText(block.raw)) {
     showToastMessage('📋 Paragraph copied!')
-  } catch (error) {
-    console.error('Copy failed:', error)
+  } else {
     showToastMessage('Failed to copy paragraph.', 'error')
   }
   closeParagraphMenu()
@@ -1216,13 +1254,53 @@ const saveEditModalContent = (newContent) => {
 }
 
 // ---------- Clipboard ----------
+// Firefox always asks for confirmation before a page can read the clipboard.
+// Avoid that extra prompt by focusing the right text box and asking for a
+// normal Ctrl+V / ⌘V paste instead.
+const focusForManualPaste = (targetType) => {
+  const el =
+    targetType === 'english' ? englishTextareaRef.value : russianTextareaRef.value
+  if (!el) return
+
+  el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+  el.focus({ preventScroll: true })
+
+  const end = el.value.length
+  try {
+    el.setSelectionRange(end, end)
+  } catch {
+    // The element may not support selection in some browsers.
+  }
+
+  const coarsePointer =
+    typeof window !== 'undefined' &&
+    window.matchMedia?.('(pointer: coarse)').matches
+  const isMac = /mac|iphone|ipad|ipod/i.test(
+    navigator.platform || navigator.userAgent,
+  )
+
+  showToastMessage(
+    coarsePointer
+      ? 'Firefox needs a manual paste. Long-press the text box and choose Paste.'
+      : `Firefox needs a manual paste. Press ${isMac ? '⌘V' : 'Ctrl+V'} now.`,
+    'info',
+    6000,
+  )
+}
+
 const pasteFromClipboard = async (target = null) => {
+  const targetType = target || 'russian'
+
+  if (firefoxBrowser) {
+    focusForManualPaste(targetType)
+    return
+  }
+
   isLoading.value = true
   loadingText.value = 'Pasting from clipboard...'
   try {
     await new Promise((resolve) => setTimeout(resolve, 80))
     const clipboardText = await navigator.clipboard.readText()
-    const targetType = target || 'russian'
 
     if (targetType === 'russian') {
       russianText.value = normalizeParagraphBreaks(clipboardText)
@@ -1300,6 +1378,8 @@ watch(comparisonData, async () => {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 12px;
+  min-width: 0;
   z-index: 100;
 }
 
@@ -1307,7 +1387,14 @@ watch(comparisonData, async () => {
   display: flex;
   align-items: center;
   gap: 10px;
+  flex: 1 1 auto;
   min-width: 0;
+  overflow: hidden;
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  touch-action: manipulation;
 }
 
 .logo-mark {
@@ -1330,6 +1417,9 @@ watch(comparisonData, async () => {
   color: var(--text);
   margin: 0;
   white-space: nowrap;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .logo-lang {
@@ -1341,6 +1431,8 @@ watch(comparisonData, async () => {
   display: flex;
   gap: 4px;
   align-items: center;
+  flex: 0 0 auto;
+  margin-left: auto;
 }
 
 /* Header icon buttons */
@@ -1790,6 +1882,7 @@ watch(comparisonData, async () => {
   user-select: none;
   -webkit-user-select: none;
   -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
 }
 
 .line-container:hover {
@@ -1893,7 +1986,7 @@ watch(comparisonData, async () => {
   text-align: center;
 }
 
-/* Paragraph actions: like is always visible; bookmark/menu appear in context */
+/* Paragraph actions: like, bookmark, and menu appear while focused */
 .paragraph-actions {
   position: absolute;
   top: 8px;
@@ -2101,12 +2194,18 @@ watch(comparisonData, async () => {
 }
 
 @media (max-width: 480px) {
+  /* Keep the icon, drop the wordmark so the action buttons always fit. */
   .logo {
-    font-size: 15px;
+    display: none;
   }
 
   .logo-mark {
-    display: none;
+    display: inline-flex;
+  }
+
+  .app-header {
+    padding: 8px 10px;
+    gap: 8px;
   }
 
   .line-words {
